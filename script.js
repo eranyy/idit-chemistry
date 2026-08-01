@@ -362,6 +362,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const encodedText = encodeURIComponent(whatsappMsg);
             const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
             
+            // Send email copy to eranyy@gmail.com via Web3Forms API in background
+            const web3FormsKey = 'YOUR_WEB3FORMS_ACCESS_KEY'; // Replace with key received in email
+            if (web3FormsKey && web3FormsKey !== 'YOUR_WEB3FORMS_ACCESS_KEY') {
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        access_key: web3FormsKey,
+                        subject: `המלצה חדשה באתר מורה לכימיה - ${name}`,
+                        from_name: "אתר עידית כימיה",
+                        name: name,
+                        email: "no-reply@idit-chemistry.co.il",
+                        message: `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`
+                    })
+                }).catch(err => console.error("Email dispatch error:", err));
+            }
+            
             hideReviewModal();
             
             // Redirect to WhatsApp
