@@ -269,4 +269,105 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // 7. Interactive Review Modal & Star Rating
+    const openReviewBtn = document.getElementById('openReviewBtn');
+    const reviewModal = document.getElementById('reviewModal');
+    const closeReviewModal = document.getElementById('closeReviewModal');
+    const reviewForm = document.getElementById('reviewForm');
+    const stars = document.querySelectorAll('#starRating .star');
+    const ratingInput = document.getElementById('reviewRating');
+    
+    if (openReviewBtn && reviewModal && closeReviewModal && reviewForm) {
+        
+        // Open Modal
+        openReviewBtn.addEventListener('click', () => {
+            reviewModal.style.display = 'flex';
+            reviewModal.setAttribute('aria-hidden', 'false');
+            setTimeout(() => {
+                reviewModal.classList.add('active');
+            }, 10);
+        });
+        
+        // Hide Modal function
+        const hideReviewModal = () => {
+            reviewModal.classList.remove('active');
+            reviewModal.setAttribute('aria-hidden', 'true');
+            setTimeout(() => {
+                reviewModal.style.display = 'none';
+                reviewForm.reset();
+                resetStars();
+            }, 300);
+        };
+        
+        closeReviewModal.addEventListener('click', hideReviewModal);
+        
+        // Close when clicking outside content
+        reviewModal.addEventListener('click', (e) => {
+            if (e.target === reviewModal) {
+                hideReviewModal();
+            }
+        });
+        
+        // Close with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && reviewModal.classList.contains('active')) {
+                hideReviewModal();
+            }
+        });
+        
+        // Star Rating Selection
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const val = star.getAttribute('data-value');
+                ratingInput.value = val;
+                
+                // Highlight clicked star and all lower value stars
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-value'), 10) <= parseInt(val, 10)) {
+                        s.classList.add('selected');
+                    } else {
+                        s.classList.remove('selected');
+                    }
+                });
+            });
+        });
+        
+        const resetStars = () => {
+            stars.forEach(s => {
+                s.classList.remove('selected');
+            });
+            ratingInput.value = '5';
+        };
+        
+        // Handle Submit
+        reviewForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('reviewName').value.trim();
+            const role = document.getElementById('reviewRole').value.trim();
+            const rating = ratingInput.value;
+            const text = document.getElementById('reviewText').value.trim();
+            
+            // Format star string
+            const starString = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+            
+            // Prepare Whatsapp Message
+            const whatsappMsg = `היי עידית, שלחתי המלצה חדשה עבור האתר שלך:
+✍️ *שם הממליץ:* ${name}
+🎓 *רמת לימוד / מוסד:* ${role}
+⭐ *דירוג:* ${starString} (${rating}/5)
+💬 *המלצה:* ${text}`;
+            
+            const encodedText = encodeURIComponent(whatsappMsg);
+            const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
+            
+            hideReviewModal();
+            
+            // Redirect to WhatsApp
+            setTimeout(() => {
+                window.open(whatsappURL, '_blank');
+            }, 500);
+        });
+    }
 });

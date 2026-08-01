@@ -1417,6 +1417,103 @@ footer a:hover {
     list-style-type: disc;
 }
 
+/* Testimonials Action Wrapper */
+.testimonials-actions-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+}
+
+/* Review Submission Modal */
+.review-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(15, 32, 66, 0.5);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 2rem 1rem;
+}
+
+.review-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+}
+
+.review-modal-content {
+    background-color: var(--bg-white);
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    animation: zoom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    direction: rtl;
+    text-align: right;
+}
+
+.close-review-modal {
+    position: absolute;
+    top: 1rem;
+    left: 1.25rem;
+    color: var(--text-muted);
+    font-size: 2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.close-review-modal:hover {
+    color: var(--primary-light);
+}
+
+.review-modal-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+/* Star Rating Style (Reverse order trick) */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    font-size: 2.25rem;
+    cursor: pointer;
+    user-select: none;
+    margin-top: 0.25rem;
+}
+
+.star-rating .star {
+    color: #CBD5E1;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.star-rating .star:hover {
+    transform: scale(1.15);
+}
+
+.star-rating .star:hover,
+.star-rating .star:hover ~ .star,
+.star-rating .star.selected,
+.star-rating .star.selected ~ .star {
+    color: #F59E0B; /* Gold Amber */
+}
+
 /* Responsiveness */
 @media (max-width: 1024px) {
     .hero-grid, .methodology-grid, .geo-grid, .contact-grid {

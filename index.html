@@ -602,11 +602,15 @@
                 </div>
             </div>
 
-            <div class="fb-cta-container">
+            <div class="testimonials-actions-wrapper">
                 <a href="https://www.facebook.com/profile.php?id=100064009956539" class="btn btn-outline" target="_blank" id="fbPageLink">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                    בקרו בדף הפייסבוק שלי לעוד עדכונים והמלצות
+                    <span>בקרו בדף הפייסבוק לעוד המלצות</span>
                 </a>
+                <button class="btn btn-primary" id="openReviewBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    <span>כתיבת המלצה חדשה</span>
+                </button>
             </div>
         </div>
     </section>
@@ -783,6 +787,46 @@
         <div class="modal-content-wrapper">
             <img class="modal-img" id="modalImg" src="" alt="תעודה">
             <div class="modal-caption" id="modalCaption"></div>
+        </div>
+    </div>
+
+    <!-- Review Submission Modal -->
+    <div id="reviewModal" class="review-modal" aria-hidden="true">
+        <div class="review-modal-content">
+            <span class="close-review-modal" id="closeReviewModal" aria-label="סגור חלון המלצה">&times;</span>
+            <h3>כתיבת המלצה חדשה</h3>
+            <p class="review-modal-desc">נשמח לשמוע על החוויה שלכם! ההמלצה תישלח ישירות לוואטסאפ של עידית לצורך אישור והצגה באתר.</p>
+            
+            <form id="reviewForm">
+                <div class="form-group">
+                    <label class="form-label" for="reviewName">שם מלא</label>
+                    <input type="text" class="form-control" id="reviewName" placeholder="לדוגמה: יובל לביא" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="reviewRole">רמת לימוד / מוסד</label>
+                    <input type="text" class="form-control" id="reviewRole" placeholder="לדוגמה: תלמיד י&quot;ב 5 יח' או סטודנט במכינה" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">דירוג כוכבים</label>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-value="5">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="1">★</span>
+                    </div>
+                    <input type="hidden" id="reviewRating" value="5">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="reviewText">תוכן ההמלצה</label>
+                    <textarea class="form-control" id="reviewText" rows="4" placeholder="ספרו בכמה מילים איך עידית עזרה לכם ומה דעתכם על השיעורים..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="submitReviewBtn">שליחת המלצה בוואטסאפ 🚀</button>
+            </form>
         </div>
     </div>
 
