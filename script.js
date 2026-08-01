@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
             
             // Send email copy to eranyy@gmail.com via Web3Forms API in background
-            const web3FormsKey = 'YOUR_WEB3FORMS_ACCESS_KEY'; // Replace with key received in email
+            const web3FormsKey = 'faf61723-a60d-463d-9f5a-8f45866c83af'; // Replace with key received in email
             if (web3FormsKey && web3FormsKey !== 'YOUR_WEB3FORMS_ACCESS_KEY') {
                 fetch('https://api.web3forms.com/submit', {
                     method: 'POST',
