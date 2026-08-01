@@ -6,7 +6,6 @@ implementation_plan.md
 
 # Firebase configs that might be generated locally
 .firebase/
-.firebaserc
 
 # OS files
 Thumbs.db
