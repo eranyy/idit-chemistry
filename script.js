@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API in background
                 const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-                const iditKey = ''; // Replace with Web3Forms key for iditzilberman@gmail.com when available
+                const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
                 
                 const emailSubject = `פנייה חדשה באתר מורה לכימיה - ${nameInput.value.trim()}`;
                 const emailBody = `פנייה חדשה התקבלה באתר:
@@ -408,7 +408,7 @@ ${customMessage}`;
             
             // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API
             const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-            const iditKey = ''; // Replace with Web3Forms key for iditzilberman@gmail.com when available
+            const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
             
             const emailSubject = `המלצה חדשה באתר מורה לכימיה - ${name}`;
             const emailBody = `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`;
