@@ -38,14 +38,35 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let isOpen = false;
         
-        // Sunday (0) to Friday (5) from 08:00 to 20:00
-        if (day >= 0 && day <= 5) {
+        // Helper to check if Israel is currently in Daylight Saving Time (UTC+3)
+        function isIsraelDST() {
+            try {
+                const jlmHour = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hourCycle: 'h23' }).format(new Date()), 10);
+                const utcHour = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: 'numeric', hourCycle: 'h23' }).format(new Date()), 10);
+                return ((jlmHour - utcHour + 24) % 24) === 3;
+            } catch (e) {
+                const month = new Date().getMonth() + 1;
+                return month >= 4 && month <= 10;
+            }
+        }
+        
+        // Sunday (0) to Thursday (4) from 08:00 to 20:00
+        if (day >= 0 && day <= 4) {
             const openTime = 8 * 60; // 08:00
             const closeTime = 20 * 60; // 20:00
             if (currentTime >= openTime && currentTime < closeTime) {
                 isOpen = true;
             }
         } 
+        // Friday (5) from 08:00 to 17:00 (Summer) or 15:00 (Winter)
+        else if (day === 5) {
+            const openTime = 8 * 60; // 08:00
+            const closeHour = isIsraelDST() ? 17 : 15;
+            const closeTime = closeHour * 60;
+            if (currentTime >= openTime && currentTime < closeTime) {
+                isOpen = true;
+            }
+        }
         // Saturday (6) from 18:00 to 21:00
         else if (day === 6) {
             const openTime = 18 * 60; // 18:00
@@ -157,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let levelText = '';
                 switch (levelInput.value) {
                     case 'middle': levelText = "חטיבת ביניים (ז'-ט')"; break;
-                    case 'high-3': levelText = 'תיכון - 3 יח\' בגרות'; break;
                     case 'high-4': levelText = 'תיכון - 4 יח\' בגרות'; break;
                     case 'high-5': levelText = 'תיכון - 5 יח\' בגרות'; break;
                     case 'academic': levelText = 'אקדמיה / מכינה'; break;
