@@ -218,4 +218,55 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // 6. Lightbox Modal for Certificates
+    const authCards = document.querySelectorAll('.auth-card');
+    const certModal = document.getElementById('certModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalCaption = document.getElementById('modalCaption');
+    const closeModal = document.getElementById('closeModal');
+    
+    if (authCards.length > 0 && certModal && modalImg && modalCaption && closeModal) {
+        authCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const certSrc = card.getAttribute('data-cert');
+                const captionText = card.getAttribute('data-caption');
+                
+                modalImg.src = certSrc;
+                modalCaption.innerText = captionText;
+                
+                certModal.style.display = 'block';
+                certModal.setAttribute('aria-hidden', 'false');
+                setTimeout(() => {
+                    certModal.classList.add('active');
+                }, 10);
+            });
+        });
+        
+        const hideModal = () => {
+            certModal.classList.remove('active');
+            certModal.setAttribute('aria-hidden', 'true');
+            setTimeout(() => {
+                certModal.style.display = 'none';
+                modalImg.src = '';
+                modalCaption.innerText = '';
+            }, 300);
+        };
+        
+        closeModal.addEventListener('click', hideModal);
+        
+        // Close modal when clicking outside the image
+        certModal.addEventListener('click', (e) => {
+            if (e.target === certModal) {
+                hideModal();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && certModal.classList.contains('active')) {
+                hideModal();
+            }
+        });
+    }
 });
