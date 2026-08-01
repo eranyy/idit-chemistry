@@ -114,6 +114,11 @@ section {
     box-shadow: var(--shadow-sm);
 }
 
+.btn:active, .direct-link-card:active, .tab-btn:active {
+    transform: scale(0.96) !important;
+    transition: transform 0.1s ease;
+}
+
 .btn-primary {
     background-color: var(--accent);
     color: var(--bg-white);
@@ -1104,7 +1109,7 @@ header.scrolled {
     border-radius: var(--radius-sm);
     border: 1px solid #CBD5E1;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 1rem; /* Prevent auto-zoom on iOS */
     color: var(--text-dark);
     transition: var(--transition);
     background-color: #F8FAFC;
@@ -1202,6 +1207,7 @@ footer a:hover {
     grid-template-columns: 1fr 1fr;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
     background-color: var(--bg-white);
+    padding-bottom: env(safe-area-inset-bottom, 0px); /* iOS safe area support */
 }
 
 .sticky-btn {
@@ -1425,6 +1431,6 @@ footer a:hover {
     
     /* Add padding to body to prevent sticky footer overlapping content */
     body {
-        padding-bottom: 60px;
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)); /* iOS safe area support */
     }
 }
