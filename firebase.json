@@ -1,0 +1,15 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "task.md",
+      "walkthrough.md",
+      "verify_site.py"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
+  }
+}

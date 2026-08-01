@@ -1,0 +1,14 @@
+# IDE/Agent planning & verification files
+verify_site.py
+task.md
+walkthrough.md
+implementation_plan.md
+
+# Firebase configs that might be generated locally
+.firebase/
+.firebaserc
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
