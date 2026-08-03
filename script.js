@@ -451,4 +451,174 @@ ${customMessage}`;
             }, 500);
         });
     }
+
+    // 8. Accessibility floating panel interactions & state persistence
+    const accToggle = document.getElementById('accessibilityToggle');
+    const accPanel = document.getElementById('accessibilityPanel');
+    const accClose = document.getElementById('accessibilityClose');
+    
+    const btnEnlargeText = document.getElementById('btnEnlargeText');
+    const btnContrast = document.getElementById('btnContrast');
+    const btnMonochrome = document.getElementById('btnMonochrome');
+    const btnLinks = document.getElementById('btnLinks');
+    const btnFont = document.getElementById('btnFont');
+    const btnReset = document.getElementById('btnReset');
+    
+    if (accToggle && accPanel && accClose) {
+        // Toggle panel
+        accToggle.addEventListener('click', () => {
+            const isExpanded = accPanel.classList.contains('active');
+            if (isExpanded) {
+                accPanel.classList.remove('active');
+                accPanel.setAttribute('aria-hidden', 'true');
+            } else {
+                accPanel.classList.add('active');
+                accPanel.setAttribute('aria-hidden', 'false');
+            }
+        });
+        
+        accClose.addEventListener('click', () => {
+            accPanel.classList.remove('active');
+            accPanel.setAttribute('aria-hidden', 'true');
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && accPanel.classList.contains('active')) {
+                accPanel.classList.remove('active');
+                accPanel.setAttribute('aria-hidden', 'true');
+            }
+        });
+        
+        // State variables
+        let accSettings = {
+            textSize: 'md', // md, lg, xl
+            contrast: false,
+            monochrome: false,
+            links: false,
+            font: false
+        };
+        
+        // Save to localStorage
+        function saveAccSettings() {
+            localStorage.setItem('accSettings', JSON.stringify(accSettings));
+        }
+        
+        // Apply settings
+        function applyAccSettings() {
+            const body = document.body;
+            const html = document.documentElement;
+            
+            // Text size
+            html.classList.remove('acc-text-lg', 'acc-text-xl');
+            btnEnlargeText.classList.remove('active');
+            if (accSettings.textSize === 'lg') {
+                html.classList.add('acc-text-lg');
+                btnEnlargeText.classList.add('active');
+                btnEnlargeText.querySelector('.btn-label').innerText = 'גופן: גדול';
+            } else if (accSettings.textSize === 'xl') {
+                html.classList.add('acc-text-xl');
+                btnEnlargeText.classList.add('active');
+                btnEnlargeText.querySelector('.btn-label').innerText = 'גופן: ענק';
+            } else {
+                btnEnlargeText.querySelector('.btn-label').innerText = 'הגדלת גופן';
+            }
+            
+            // Contrast
+            if (accSettings.contrast) {
+                body.classList.add('acc-contrast');
+                btnContrast.classList.add('active');
+            } else {
+                body.classList.remove('acc-contrast');
+                btnContrast.classList.remove('active');
+            }
+            
+            // Monochrome
+            if (accSettings.monochrome) {
+                body.classList.add('acc-monochrome');
+                btnMonochrome.classList.add('active');
+            } else {
+                body.classList.remove('acc-monochrome');
+                btnMonochrome.classList.remove('active');
+            }
+            
+            // Links
+            if (accSettings.links) {
+                body.classList.add('acc-links');
+                btnLinks.classList.add('active');
+            } else {
+                body.classList.remove('acc-links');
+                btnLinks.classList.remove('active');
+            }
+            
+            // Font
+            if (accSettings.font) {
+                body.classList.add('acc-font');
+                btnFont.classList.add('active');
+            } else {
+                body.classList.remove('acc-font');
+                btnFont.classList.remove('active');
+            }
+        }
+        
+        // Load from localStorage
+        const stored = localStorage.getItem('accSettings');
+        if (stored) {
+            try {
+                accSettings = JSON.parse(stored);
+                applyAccSettings();
+            } catch (e) {
+                console.error("Error parsing accessibility settings", e);
+            }
+        }
+        
+        // Event Listeners for buttons
+        btnEnlargeText.addEventListener('click', () => {
+            if (accSettings.textSize === 'md') {
+                accSettings.textSize = 'lg';
+            } else if (accSettings.textSize === 'lg') {
+                accSettings.textSize = 'xl';
+            } else {
+                accSettings.textSize = 'md';
+            }
+            applyAccSettings();
+            saveAccSettings();
+        });
+        
+        btnContrast.addEventListener('click', () => {
+            accSettings.contrast = !accSettings.contrast;
+            applyAccSettings();
+            saveAccSettings();
+        });
+        
+        btnMonochrome.addEventListener('click', () => {
+            accSettings.monochrome = !accSettings.monochrome;
+            applyAccSettings();
+            saveAccSettings();
+        });
+        
+        btnLinks.addEventListener('click', () => {
+            accSettings.links = !accSettings.links;
+            applyAccSettings();
+            saveAccSettings();
+        });
+        
+        btnFont.addEventListener('click', () => {
+            accSettings.font = !accSettings.font;
+            applyAccSettings();
+            saveAccSettings();
+        });
+        
+        btnReset.addEventListener('click', () => {
+            accSettings = {
+                textSize: 'md',
+                contrast: false,
+                monochrome: false,
+                links: false,
+                font: false
+            };
+            applyAccSettings();
+            saveAccSettings();
+        });
+    }
 });

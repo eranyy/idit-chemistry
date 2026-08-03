@@ -1,17 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Rubik:wght@300;400;500;700;900&display=swap');
-
 :root {
     --primary: #0F2042;
     --primary-light: #1E386B;
     --primary-rgb: 15, 32, 66;
     --accent: #00B49F;
-    --accent-dark: #008F7E;
+    --accent-dark: #006659;
     --accent-light: #E0F7F4;
     --accent-rgb: 0, 180, 159;
     --bg-light: #F6F8FA;
     --bg-white: #FFFFFF;
     --text-dark: #1E293B;
-    --text-muted: #64748B;
+    --text-muted: #475569;
     --text-light: #F8FAFC;
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
@@ -1705,5 +1703,197 @@ footer a:hover {
     /* Add padding to body to prevent sticky footer overlapping content */
     body {
         padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)); /* iOS safe area support */
+    }
+}
+
+/* ==========================================
+   Accessibility Floating Menu (נגישון)
+   ========================================== */
+.accessibility-toggle {
+    position: fixed;
+    left: 20px;
+    bottom: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--accent);
+    color: var(--bg-white);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: var(--transition);
+}
+
+.accessibility-toggle:hover {
+    background-color: var(--accent-dark);
+    transform: scale(1.05);
+}
+
+.accessibility-panel {
+    position: fixed;
+    left: 20px;
+    bottom: 90px;
+    width: 320px;
+    background-color: var(--bg-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(15, 32, 66, 0.1);
+    z-index: 9998;
+    overflow: hidden;
+    transform: translateY(20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition);
+    direction: rtl;
+}
+
+.accessibility-panel.active {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.accessibility-header {
+    background-color: var(--primary);
+    color: var(--bg-white);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.accessibility-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.accessibility-close {
+    background: none;
+    border: none;
+    color: var(--bg-white);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+
+.accessibility-body {
+    padding: 1.25rem;
+}
+
+.accessibility-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.accessibility-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: var(--bg-light);
+    border: 1px solid rgba(15, 32, 66, 0.05);
+    border-radius: var(--radius-sm);
+    color: var(--primary);
+    font-family: 'Assistant', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.accessibility-btn:hover {
+    background-color: var(--accent-light);
+    border-color: var(--accent);
+}
+
+.accessibility-btn.active {
+    background-color: var(--accent);
+    color: var(--bg-white);
+    border-color: var(--accent-dark);
+}
+
+.accessibility-btn .btn-icon {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.accessibility-btn svg {
+    stroke: currentColor;
+}
+
+.accessibility-btn.reset-btn {
+    grid-column: span 2;
+    background-color: #FEE2E2;
+    color: #991B1B;
+    border-color: #FCA5A5;
+}
+
+.accessibility-btn.reset-btn:hover {
+    background-color: #FCA5A5;
+}
+
+/* Accessibility Modifiers */
+body.acc-monochrome {
+    filter: grayscale(100%) !important;
+}
+
+body.acc-contrast, body.acc-contrast * {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+    border-color: #FFFFFF !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+body.acc-contrast a, body.acc-contrast button {
+    color: #FFFF00 !important;
+    border-color: #FFFF00 !important;
+}
+
+body.acc-contrast .btn-primary {
+    background-color: #FFFF00 !important;
+    color: #000000 !important;
+}
+
+body.acc-links a {
+    text-decoration: underline !important;
+    font-weight: 700 !important;
+}
+
+body.acc-font, body.acc-font * {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* Scalable Font Sizes */
+html.acc-text-lg {
+    font-size: 18px !important;
+}
+
+html.acc-text-xl {
+    font-size: 20px !important;
+}
+
+/* Responsive Accessibility Layout */
+@media (max-width: 767px) {
+    .accessibility-toggle {
+        bottom: 85px; /* sit above mobile call/wa bar */
+        left: 15px;
+    }
+    
+    .accessibility-panel {
+        left: 15px;
+        bottom: 145px;
+        width: calc(100% - 30px);
+        max-width: 320px;
     }
 }
