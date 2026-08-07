@@ -1,3 +1,16 @@
+// Escape hatch: reset accessibility settings via URL parameter (?reset=true or ?reset-accessibility=true)
+(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('reset-accessibility') || urlParams.has('reset')) {
+        localStorage.removeItem('accSettings');
+        // Clean URL query parameters
+        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+        // Force refresh
+        window.location.reload();
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // 1. Header scroll styling
