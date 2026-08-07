@@ -1865,6 +1865,69 @@ body.acc-contrast .btn-primary {
     color: #000000 !important;
 }
 
+/* Accessibility widget contrast overrides to prevent it from disappearing */
+body.acc-contrast .accessibility-toggle {
+    background-color: #FFFF00 !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+    box-shadow: 0 0 10px #FFFF00 !important;
+}
+
+body.acc-contrast .accessibility-toggle svg {
+    stroke: #000000 !important;
+    fill: none !important;
+}
+
+body.acc-contrast .accessibility-panel {
+    background-color: #000000 !important;
+    border: 3px solid #FFFF00 !important;
+}
+
+body.acc-contrast .accessibility-header {
+    background-color: #FFFF00 !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #FFFF00 !important;
+}
+
+body.acc-contrast .accessibility-header h3,
+body.acc-contrast .accessibility-close {
+    color: #000000 !important;
+}
+
+body.acc-contrast .accessibility-btn {
+    border: 2px solid #FFFFFF !important;
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+}
+
+body.acc-contrast .accessibility-btn:hover {
+    background-color: #222222 !important;
+    border-color: #FFFF00 !important;
+    color: #FFFF00 !important;
+}
+
+body.acc-contrast .accessibility-btn.active {
+    background-color: #FFFF00 !important;
+    color: #000000 !important;
+    border-color: #FFFF00 !important;
+}
+
+body.acc-contrast .accessibility-btn.active * {
+    background-color: #FFFF00 !important;
+    color: #000000 !important;
+}
+
+body.acc-contrast .accessibility-btn.reset-btn {
+    background-color: #000000 !important;
+    color: #FF3333 !important;
+    border-color: #FF3333 !important;
+}
+
+body.acc-contrast .accessibility-btn.reset-btn:hover {
+    background-color: #FF3333 !important;
+    color: #000000 !important;
+}
+
 body.acc-links a {
     text-decoration: underline !important;
     font-weight: 700 !important;
