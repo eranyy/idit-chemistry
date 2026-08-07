@@ -1843,7 +1843,7 @@ footer a:hover {
 }
 
 /* Accessibility Modifiers */
-body.acc-monochrome {
+html.acc-monochrome {
     filter: grayscale(100%) !important;
 }
 

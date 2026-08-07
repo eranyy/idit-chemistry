@@ -548,10 +548,10 @@ ${customMessage}`;
             
             // Monochrome
             if (accSettings.monochrome) {
-                body.classList.add('acc-monochrome');
+                html.classList.add('acc-monochrome');
                 btnMonochrome.classList.add('active');
             } else {
-                body.classList.remove('acc-monochrome');
+                html.classList.remove('acc-monochrome');
                 btnMonochrome.classList.remove('active');
             }
             
