@@ -1960,3 +1960,213 @@ html.acc-text-xl {
         max-width: 320px;
     }
 }
+
+/* ==========================================
+   Form Privacy Disclaimers & Legal Styling
+   ========================================== */
+.form-privacy-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.form-privacy-note a {
+    color: var(--primary-light);
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.form-privacy-note a:hover {
+    color: var(--accent);
+}
+
+/* ==========================================
+   Cookie Consent Banner
+   ========================================== */
+.cookie-banner {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    max-width: 650px;
+    margin: 0 auto;
+    background: rgba(15, 32, 66, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #FFFFFF;
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(100px);
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    direction: rtl;
+}
+
+.cookie-banner.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.cookie-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.cookie-banner-text {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cookie-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.cookie-banner-text p {
+    font-size: 0.875rem;
+    color: #E2E8F0;
+    line-height: 1.45;
+    margin: 0;
+}
+
+.cookie-banner-text a {
+    color: var(--accent-light);
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.cookie-banner-actions {
+    flex-shrink: 0;
+}
+
+.btn-sm {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    border-radius: var(--radius-sm);
+}
+
+/* ==========================================
+   Privacy Page Styling (privacy.html)
+   ========================================== */
+body.privacy-page {
+    background-color: var(--bg-light);
+}
+
+.nav-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.privacy-container {
+    padding-top: 7.5rem;
+    padding-bottom: 4rem;
+}
+
+.privacy-card {
+    background-color: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 3.5rem;
+    border: 1px solid rgba(15, 32, 66, 0.05);
+}
+
+.privacy-header {
+    text-align: center;
+    border-bottom: 1px solid #E2E8F0;
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.privacy-header h1 {
+    font-size: 2.5rem;
+    color: var(--primary-dark);
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+}
+
+.updated-date {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.legal-section {
+    margin-bottom: 2.25rem;
+    line-height: 1.75;
+}
+
+.legal-section h2 {
+    font-size: 1.35rem;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+}
+
+.legal-section p {
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.legal-section ul, .legal-section ol {
+    margin-right: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.legal-section li {
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.legal-contact-box {
+    background-color: var(--bg-light);
+    border-right: 4px solid var(--accent);
+    padding: 1.25rem;
+    border-radius: var(--radius-sm);
+    margin-top: 1rem;
+}
+
+.legal-contact-box p {
+    margin-bottom: 0.4rem;
+}
+
+.privacy-footer-actions {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #E2E8F0;
+}
+
+@media (max-width: 767px) {
+    .privacy-card {
+        padding: 1.75rem 1.25rem;
+    }
+    .privacy-header h1 {
+        font-size: 1.85rem;
+    }
+    .cookie-banner-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    .cookie-banner-actions {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .cookie-banner {
+        bottom: 80px;
+    }
+}

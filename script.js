@@ -634,4 +634,26 @@ ${customMessage}`;
             saveAccSettings();
         });
     }
+
+    // 9. Cookie Consent Banner Logic
+    const cookieBanner = document.getElementById('cookieBanner');
+    const acceptCookiesBtn = document.getElementById('acceptCookiesBtn');
+    
+    if (cookieBanner && acceptCookiesBtn) {
+        // Check if user has already accepted cookies
+        const hasAccepted = localStorage.getItem('cookieConsentAccepted');
+        if (!hasAccepted) {
+            // Show banner after short delay
+            setTimeout(() => {
+                cookieBanner.classList.add('active');
+                cookieBanner.setAttribute('aria-hidden', 'false');
+            }, 1500);
+        }
+        
+        acceptCookiesBtn.addEventListener('click', () => {
+            localStorage.setItem('cookieConsentAccepted', 'true');
+            cookieBanner.classList.remove('active');
+            cookieBanner.setAttribute('aria-hidden', 'true');
+        });
+    }
 });
