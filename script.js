@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Dynamic Opening Status
+    let dtfJlm = null;
+    let dtfUtc = null;
+
     function checkStatus() {
         const now = new Date();
         const day = now.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
@@ -62,8 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Helper to check if Israel is currently in Daylight Saving Time (UTC+3)
         function isIsraelDST() {
             try {
-                const jlmHour = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hourCycle: 'h23' }).format(new Date()), 10);
-                const utcHour = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: 'numeric', hourCycle: 'h23' }).format(new Date()), 10);
+                if (!dtfJlm || !dtfUtc) {
+                    dtfJlm = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hourCycle: 'h23' });
+                    dtfUtc = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: 'numeric', hourCycle: 'h23' });
+                }
+                const jlmHour = parseInt(dtfJlm.format(new Date()), 10);
+                const utcHour = parseInt(dtfUtc.format(new Date()), 10);
                 return ((jlmHour - utcHour + 24) % 24) === 3;
             } catch (e) {
                 const month = new Date().getMonth() + 1;
