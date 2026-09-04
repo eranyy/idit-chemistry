@@ -1,0 +1,27 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest --env=jsdom"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eranyy/idit-chemistry.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/eranyy/idit-chemistry/issues"
+  },
+  "homepage": "https://github.com/eranyy/idit-chemistry#readme",
+  "devDependencies": {
+    "jest": "^30.5.1",
+    "jest-environment-jsdom": "^30.5.1",
+    "jsdom": "^29.1.1",
+    "jsdom-global": "^3.0.2"
+  }
+}
