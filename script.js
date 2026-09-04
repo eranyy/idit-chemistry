@@ -15,11 +15,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 1. Header scroll styling
     const header = document.getElementById('header');
+    let isScrolling = false;
+
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
+        if (!isScrolling) {
+            window.requestAnimationFrame(() => {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+                isScrolling = false;
+            });
+            isScrolling = true;
         }
     });
 
