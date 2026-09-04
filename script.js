@@ -15,13 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 1. Header scroll styling
     const header = document.getElementById('header');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
+    let isTicking = false;
+    if (header) {
+        window.addEventListener('scroll', () => {
+            if (!isTicking) {
+                window.requestAnimationFrame(() => {
+                    if (window.scrollY > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
+        }, { passive: true });
+    }
 
     // Set dynamic year in footer
     const currentYearSpan = document.getElementById('currentYear');
@@ -59,11 +68,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let isOpen = false;
         
+        // Cached Intl.DateTimeFormat formatters for performance
+        let jlmFormatter = null;
+        let utcFormatter = null;
+
         // Helper to check if Israel is currently in Daylight Saving Time (UTC+3)
         function isIsraelDST() {
             try {
-                const jlmHour = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hourCycle: 'h23' }).format(new Date()), 10);
-                const utcHour = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: 'numeric', hourCycle: 'h23' }).format(new Date()), 10);
+                if (!jlmFormatter) {
+                    jlmFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hourCycle: 'h23' });
+                }
+                if (!utcFormatter) {
+                    utcFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: 'numeric', hourCycle: 'h23' });
+                }
+                const now = new Date();
+                const jlmHour = parseInt(jlmFormatter.format(now), 10);
+                const utcHour = parseInt(utcFormatter.format(now), 10);
                 return ((jlmHour - utcHour + 24) % 24) === 3;
             } catch (e) {
                 const month = new Date().getMonth() + 1;
@@ -110,15 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Highlight current day in table
-        const tableRows = document.querySelectorAll('#hoursTable tr');
-        tableRows.forEach(row => {
-            const rowDay = parseInt(row.getAttribute('data-day'), 10);
-            if (rowDay === day) {
-                row.classList.add('current-day');
-            } else {
-                row.classList.remove('current-day');
-            }
-        });
+        const prevActive = document.querySelector('#hoursTable tr.current-day');
+        const newActive = document.querySelector(`#hoursTable tr[data-day="${day}"]`);
+        if (prevActive !== newActive) {
+            if (prevActive) prevActive.classList.remove('current-day');
+            if (newActive) newActive.classList.add('current-day');
+        }
     }
     
     checkStatus();
