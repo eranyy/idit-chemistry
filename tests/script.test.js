@@ -55,4 +55,13 @@ describe('script.js basic functionality', () => {
         // Allow requestAnimationFrame callback if throttled
         expect(header).toBeDefined();
     });
+
+    test('handles invalid JSON in localStorage accSettings gracefully', () => {
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        localStorage.setItem('accSettings', 'invalid json{');
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+        expect(consoleSpy).toHaveBeenCalledWith("Error parsing accessibility settings", expect.any(SyntaxError));
+        consoleSpy.mockRestore();
+    });
 });
