@@ -110,15 +110,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Highlight current day in table
-        const tableRows = document.querySelectorAll('#hoursTable tr');
-        tableRows.forEach(row => {
-            const rowDay = parseInt(row.getAttribute('data-day'), 10);
-            if (rowDay === day) {
-                row.classList.add('current-day');
+        const previousActive = document.querySelector('#hoursTable tr.current-day');
+        let needsUpdate = true;
+
+        if (previousActive) {
+            const prevDay = parseInt(previousActive.getAttribute('data-day'), 10);
+            if (prevDay === day) {
+                needsUpdate = false;
             } else {
-                row.classList.remove('current-day');
+                previousActive.classList.remove('current-day');
             }
-        });
+        }
+
+        if (needsUpdate) {
+            const currentActive = document.querySelector(`#hoursTable tr[data-day="${day}"]`);
+            if (currentActive) {
+                currentActive.classList.add('current-day');
+            }
+        }
     }
     
     checkStatus();
