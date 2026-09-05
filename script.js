@@ -937,33 +937,31 @@ ${customMessage}`;
 
         function renderResultStep() {
             quizProgressWrap.style.display = 'none';
-            quizTitle.textContent = 'תוצאת אבחון הטיפול והמוכנות שלך';
+            quizTitle.textContent = 'תוצאת אבחון הלימוד וההתאמה שלך';
             quizSubtitle.textContent = 'הניתוח הושלם בהצלחה! להלן הסיכום וההמלצה של עידית:';
 
             let totalScore = 0;
             let detailsList = [];
             currentQuizState.answers.forEach(a => {
-                totalScore += a.score;
+                totalScore += (a.score || 0);
                 if (a.detail) detailsList.push(a.detail);
             });
 
-            let finalScore = Math.min(Math.max(totalScore, 55), 94);
             let trackInfo = tracksData.find(t => t.id === currentQuizState.track) || tracksData[0];
 
-            let feedbackText = `זיהינו שקיימת תשתית טובה, אך נדרש מיקוד בפתרון תרגילים מורכבים והקניית שיטות עבודה של מכון ויצמן. עם ליווי מותאם, ניתן להגיע ל-90+ בקלות!`;
-            if (finalScore < 65) {
-                feedbackText = `מתוצאות האבחון עולה כי קיים פער בבסיס ובחישובים הנדרשים. מומלץ לבנות תוכנית עבודה מרוכזת לסגירת הפערים מהיסוד!`;
-            } else if (finalScore > 85) {
-                feedbackText = `תוצאות האבחון מצוינות! יש לך פוטנציאל גבוה להצטיינות. שיעור ממוקד יעזור לך לחדד את שאלות המכשול ולהבטיח 95+!`;
+            let feedbackText = `זיהינו תשתית ראשונית טובה, אך נדרש מיקוד בפתרון תרגילים מורכבים והקניית שיטות עבודה סדורות. ליווי מותאם אישית יעזור לסגור את הפערים ולשפר משמעותית את ההישגים.`;
+            if (totalScore < 65) {
+                feedbackText = `מתוצאות האבחון עולה כי מומלץ לחזק את נושאי הבסיס והחישובים הנדרשים. תוכנית עבודה מרוכזת ומותאמת אישית תסייע לבנות את הביטחון וההבנה מהיסוד.`;
+            } else if (totalScore > 80) {
+                feedbackText = `תוצאות האבחון מראות פוטנציאל גבוה להצטיינות! שיעור ממוקד יעזור לחדד את שאלות המכשול, לשפר מיומנויות פתרון ולבנות ביטחון מלא לקראת הבחינה.`;
             }
 
             const waText = encodeURIComponent(
                 `היי עידית! 👋\n` +
-                `ביצעתי כעת את מבחן המוכנות בכימיה באתר שלך.\n\n` +
-                `📊 **תוצאות האבחון שלי:**\n` +
+                `ביצעתי כעת את אבחון הלימוד בכימיה באתר שלך.\n\n` +
+                `📊 **פרטי האבחון שלי:**\n` +
                 `- 🎓 **מסלול לימוד**: ${trackInfo.title}\n` +
-                `- 📈 **ציון מוכנות מחושב**: ${finalScore}%\n` +
-                `- 📝 **דגשים שסומנו**: ${detailsList.join(', ')}\n\n` +
+                `- 📝 **נושאים ודגשים שסומנו**: ${detailsList.join(', ')}\n\n` +
                 `אשמח להתייעץ איתך ולבחון תיאום שיעור ניסיון! 🚀`
             );
 
@@ -971,8 +969,8 @@ ${customMessage}`;
 
             let html = `
                 <div class="quiz-result-box">
-                    <span class="quiz-badge">📊 דוח מוכנות אישי</span>
-                    <div class="quiz-score-badge">מוכנות מחושבת: ${finalScore}%</div>
+                    <span class="quiz-badge">📊 דוח אבחון אישי</span>
+                    <div class="quiz-score-badge">🎯 סיכום אבחון והתאמה אישית</div>
                     <div class="quiz-result-feedback">
                         <strong>💡 ניתוח והמלצה של עידית:</strong><br>
                         ${feedbackText}
