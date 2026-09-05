@@ -261,10 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const encodedText = encodeURIComponent(whatsappText);
                 const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
                 
-                // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API in background
-                const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-                const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
-                
+                // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via internal API proxy
                 const emailSubject = `פנייה חדשה באתר מורה לכימיה - ${nameInput.value.trim()}`;
                 const emailBody = `פנייה חדשה התקבלה באתר:
 שם מלא: ${nameInput.value.trim()}
@@ -276,11 +273,11 @@ document.addEventListener('DOMContentLoaded', () => {
 ${customMessage}`;
 
                 // Dispatch to Admin
-                fetch('https://api.web3forms.com/submit', {
+                fetch('/api/submit', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({
-                        access_key: adminKey,
+                        target: 'admin',
                         subject: emailSubject,
                         from_name: "אתר עידית כימיה - פניות",
                         name: nameInput.value.trim(),
@@ -290,20 +287,18 @@ ${customMessage}`;
                 }).catch(err => console.error("Admin contact dispatch error:", err));
 
                 // Dispatch to Idit
-                if (iditKey) {
-                    fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify({
-                            access_key: iditKey,
-                            subject: emailSubject,
-                            from_name: "אתר עידית כימיה - פניות",
-                            name: nameInput.value.trim(),
-                            email: "no-reply@idit-chemistry.co.il",
-                            message: emailBody
-                        })
-                    }).catch(err => console.error("Idit contact dispatch error:", err));
-                }
+                fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        target: 'idit',
+                        subject: emailSubject,
+                        from_name: "אתר עידית כימיה - פניות",
+                        name: nameInput.value.trim(),
+                        email: "no-reply@idit-chemistry.co.il",
+                        message: emailBody
+                    })
+                }).catch(err => console.error("Idit contact dispatch error:", err));
                 
                 // Hide Form & Show Success Message
                 contactForm.style.display = 'none';
@@ -461,19 +456,16 @@ ${customMessage}`;
             const encodedText = encodeURIComponent(whatsappMsg);
             const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
             
-            // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API
-            const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-            const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
-            
+            // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via internal API proxy
             const emailSubject = `המלצה חדשה באתר מורה לכימיה - ${name}`;
             const emailBody = `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`;
 
             // Dispatch to Admin
-            fetch('https://api.web3forms.com/submit', {
+            fetch('/api/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({
-                    access_key: adminKey,
+                    target: 'admin',
                     subject: emailSubject,
                     from_name: "אתר עידית כימיה - המלצות",
                     name: name,
@@ -483,20 +475,18 @@ ${customMessage}`;
             }).catch(err => console.error("Admin review dispatch error:", err));
 
             // Dispatch to Idit
-            if (iditKey) {
-                fetch('https://api.web3forms.com/submit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({
-                        access_key: iditKey,
-                        subject: emailSubject,
-                        from_name: "אתר עידית כימיה - המלצות",
-                        name: name,
-                        email: "no-reply@idit-chemistry.co.il",
-                        message: emailBody
-                    })
-                }).catch(err => console.error("Idit review dispatch error:", err));
-            }
+            fetch('/api/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    target: 'idit',
+                    subject: emailSubject,
+                    from_name: "אתר עידית כימיה - המלצות",
+                    name: name,
+                    email: "no-reply@idit-chemistry.co.il",
+                    message: emailBody
+                })
+            }).catch(err => console.error("Idit review dispatch error:", err));
             
             hideReviewModal();
             
