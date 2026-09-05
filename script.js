@@ -416,8 +416,9 @@ ${customMessage}`;
                 ratingInput.value = val;
                 
                 // Highlight clicked star and all lower value stars
+                const parsedVal = parseInt(val, 10);
                 stars.forEach(s => {
-                    if (parseInt(s.getAttribute('data-value'), 10) <= parseInt(val, 10)) {
+                    if (parseInt(s.getAttribute('data-value'), 10) <= parsedVal) {
                         s.classList.add('selected');
                     } else {
                         s.classList.remove('selected');
