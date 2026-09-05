@@ -59,6 +59,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Dynamic Opening Status
+    const statusBadge = document.getElementById('openingStatus');
+    const statusText = statusBadge ? statusBadge.querySelector('.status-text') : null;
+
+    // Cache the hours table rows to avoid querying the DOM inside the interval
+    const hoursRows = document.querySelectorAll('#hoursTable tr[data-day]');
+    const daysMap = new Map();
+    hoursRows.forEach(row => {
+        daysMap.set(parseInt(row.getAttribute('data-day'), 10), row);
+    });
+    let currentActiveDayRow = null;
+
     function checkStatus() {
         const now = new Date();
         const day = now.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
@@ -117,9 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        const statusBadge = document.getElementById('openingStatus');
-        if (statusBadge) {
-            const statusText = statusBadge.querySelector('.status-text');
+        if (statusBadge && statusText) {
             if (isOpen) {
                 statusBadge.className = 'status-badge open';
                 statusText.innerText = 'פתוח כעת – מוזמנים להתקשר!';
@@ -130,11 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Highlight current day in table
-        const prevActive = document.querySelector('#hoursTable tr.current-day');
-        const newActive = document.querySelector(`#hoursTable tr[data-day="${day}"]`);
-        if (prevActive !== newActive) {
-            if (prevActive) prevActive.classList.remove('current-day');
-            if (newActive) newActive.classList.add('current-day');
+        const newActiveDayRow = daysMap.get(day);
+        if (currentActiveDayRow !== newActiveDayRow) {
+            if (currentActiveDayRow) currentActiveDayRow.classList.remove('current-day');
+            if (newActiveDayRow) newActiveDayRow.classList.add('current-day');
+            currentActiveDayRow = newActiveDayRow;
         }
     }
     
