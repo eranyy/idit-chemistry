@@ -64,4 +64,30 @@ describe('script.js basic functionality', () => {
         expect(consoleSpy).toHaveBeenCalledWith("Error parsing accessibility settings", expect.any(SyntaxError));
         consoleSpy.mockRestore();
     });
+
+    test('handles fetch network error in contact form dispatch gracefully', async () => {
+        document.body.innerHTML += `
+            <form id="contactForm">
+                <input id="contactName" value="ישראל ישראלי" />
+                <input id="contactPhone" value="0501234567" />
+                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="contactFormat"><option value="online">אונליין</option></select>
+                <textarea id="contactMessage">שלום</textarea>
+                <div id="formFeedback"></div>
+            </form>
+        `;
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+        window.open = jest.fn();
+
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const form = document.getElementById('contactForm');
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+
+        await new Promise(resolve => setTimeout(resolve, 10));
+        expect(consoleSpy).toHaveBeenCalledWith("Admin contact dispatch error:", expect.any(Error));
+        consoleSpy.mockRestore();
+    });
 });
