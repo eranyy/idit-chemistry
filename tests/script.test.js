@@ -8,6 +8,27 @@ const path = require('path');
 const scriptContent = fs.readFileSync(path.resolve(__dirname, '../script.js'), 'utf8');
 
 describe('script.js basic functionality', () => {
+    let documentListeners = [];
+    let windowListeners = [];
+    const originalDocumentAddEventListener = document.addEventListener;
+    const originalWindowAddEventListener = window.addEventListener;
+
+    beforeAll(() => {
+        document.addEventListener = (type, listener, options) => {
+            documentListeners.push({ type, listener, options });
+            originalDocumentAddEventListener.call(document, type, listener, options);
+        };
+        window.addEventListener = (type, listener, options) => {
+            windowListeners.push({ type, listener, options });
+            originalWindowAddEventListener.call(window, type, listener, options);
+        };
+    });
+
+    afterAll(() => {
+        document.addEventListener = originalDocumentAddEventListener;
+        window.addEventListener = originalWindowAddEventListener;
+    });
+
     beforeEach(() => {
         document.body.innerHTML = `
             <header id="header"></header>
@@ -19,7 +40,28 @@ describe('script.js basic functionality', () => {
                 <tr data-day="1"><td>Mon</td></tr>
             </table>
             <div id="openingStatus"><span class="status-text"></span></div>
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel"></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnEnlargeText"><span class="btn-label"></span></button>
+            <button id="btnContrast"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
         `;
+    });
+
+    afterEach(() => {
+        documentListeners.forEach(({ type, listener, options }) => {
+            document.removeEventListener(type, listener, options);
+        });
+        documentListeners = [];
+        windowListeners.forEach(({ type, listener, options }) => {
+            window.removeEventListener(type, listener, options);
+        });
+        windowListeners = [];
+        jest.clearAllMocks();
     });
 
     test('sets current year in footer', () => {
