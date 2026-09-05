@@ -59,7 +59,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Dynamic Opening Status
+    // Cache DOM elements outside the interval to improve performance
+    let statusBadge = null;
+    let statusText = null;
+    let hoursTableRows = null;
+    let activeRow = null;
+
     function checkStatus() {
+        if (!statusBadge) {
+            statusBadge = document.getElementById('openingStatus');
+            statusText = statusBadge ? statusBadge.querySelector('.status-text') : null;
+            hoursTableRows = Array.from(document.querySelectorAll('#hoursTable tr'));
+        }
         const now = new Date();
         const day = now.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
         const currentHour = now.getHours();
@@ -117,9 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        const statusBadge = document.getElementById('openingStatus');
-        if (statusBadge) {
-            const statusText = statusBadge.querySelector('.status-text');
+        if (statusBadge && statusText) {
             if (isOpen) {
                 statusBadge.className = 'status-badge open';
                 statusText.innerText = 'פתוח כעת – מוזמנים להתקשר!';
@@ -130,11 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Highlight current day in table
-        const prevActive = document.querySelector('#hoursTable tr.current-day');
-        const newActive = document.querySelector(`#hoursTable tr[data-day="${day}"]`);
-        if (prevActive !== newActive) {
-            if (prevActive) prevActive.classList.remove('current-day');
+        const newActive = hoursTableRows.find(row => parseInt(row.getAttribute('data-day'), 10) === day);
+        if (activeRow !== newActive) {
+            if (activeRow) activeRow.classList.remove('current-day');
             if (newActive) newActive.classList.add('current-day');
+            activeRow = newActive;
         }
     }
     

@@ -14,12 +14,39 @@ describe('script.js basic functionality', () => {
             <span id="currentYear"></span>
             <button id="menuToggle" aria-expanded="false"></button>
             <nav id="navMenu"></nav>
+            <a class="nav-link">Link</a>
             <table id="hoursTable">
                 <tr data-day="0"><td>Sun</td></tr>
                 <tr data-day="1"><td>Mon</td></tr>
             </table>
             <div id="openingStatus"><span class="status-text"></span></div>
         `;
+        jest.spyOn(window, 'setInterval').mockImplementation(() => {});
+    });
+
+    let documentListeners = {};
+
+    beforeAll(() => {
+        const originalAddEventListener = document.addEventListener;
+        document.addEventListener = function (type, listener, options) {
+            if (!documentListeners[type]) {
+                documentListeners[type] = [];
+            }
+            documentListeners[type].push(listener);
+            return originalAddEventListener.call(document, type, listener, options);
+        };
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+        // Remove document level event listeners added by eval(scriptContent) to prevent cross-contamination between tests
+        const originalRemoveEventListener = document.removeEventListener;
+        for (const type in documentListeners) {
+            documentListeners[type].forEach(listener => {
+                originalRemoveEventListener.call(document, type, listener);
+            });
+        }
+        documentListeners = {};
     });
 
     test('sets current year in footer', () => {
@@ -32,6 +59,7 @@ describe('script.js basic functionality', () => {
     test('toggles mobile menu on click', () => {
         eval(scriptContent);
         document.dispatchEvent(new Event('DOMContentLoaded'));
+
         const menuToggle = document.getElementById('menuToggle');
         const navMenu = document.getElementById('navMenu');
 
@@ -57,6 +85,17 @@ describe('script.js basic functionality', () => {
     });
 
     test('handles invalid JSON in localStorage accSettings gracefully', () => {
+        document.body.innerHTML += `
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel"></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnEnlargeText"><span class="btn-label"></span></button>
+            <button id="btnContrast"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
+        `;
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         localStorage.setItem('accSettings', 'invalid json{');
         eval(scriptContent);
@@ -68,11 +107,11 @@ describe('script.js basic functionality', () => {
     test('handles fetch network error in contact form dispatch gracefully', async () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="0501234567" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="0501234567" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
