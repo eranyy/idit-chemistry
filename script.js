@@ -61,6 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cached DOM elements for status check
     let statusBadgeEl = null;
     let statusTextEl = null;
+    let hoursTableRows = null;
+    let currentDayRow = null;
 
     // 3. Dynamic Opening Status
     function checkStatus() {
@@ -140,12 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Highlight current day in table
-        const prevActive = document.querySelector('#hoursTable tr.current-day');
-        const newActive = document.querySelector(`#hoursTable tr[data-day="${day}"]`);
-        if (prevActive !== newActive) {
-            if (prevActive) prevActive.classList.remove('current-day');
-            if (newActive) newActive.classList.add('current-day');
+        // Highlight current day in table using cached rows
+        if (!hoursTableRows) {
+            hoursTableRows = Array.from(document.querySelectorAll('#hoursTable tr[data-day]'));
+        }
+        const targetRow = hoursTableRows.find(r => parseInt(r.getAttribute('data-day'), 10) === day);
+        if (currentDayRow !== targetRow) {
+            if (currentDayRow) currentDayRow.classList.remove('current-day');
+            if (targetRow) targetRow.classList.add('current-day');
+            currentDayRow = targetRow;
         }
     }
     
