@@ -58,11 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Cached DOM elements for status check
+    // Cached DOM elements & formatters for status check
     let statusBadgeEl = null;
     let statusTextEl = null;
     let hoursTableRows = null;
     let currentDayRow = null;
+    let jlmFormatter = null;
+    let utcFormatter = null;
 
     // 3. Dynamic Opening Status
     function checkStatus() {
@@ -74,10 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let isOpen = false;
         
-        // Cached Intl.DateTimeFormat formatters for performance
-        let jlmFormatter = null;
-        let utcFormatter = null;
-
         // Helper to check if Israel is currently in Daylight Saving Time (UTC+3)
         function isIsraelDST() {
             try {
