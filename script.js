@@ -58,6 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Cached DOM elements for status check
+    let statusBadgeEl = null;
+    let statusTextEl = null;
+
     // 3. Dynamic Opening Status
     function checkStatus() {
         const now = new Date();
@@ -117,15 +121,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        const statusBadge = document.getElementById('openingStatus');
-        if (statusBadge) {
-            const statusText = statusBadge.querySelector('.status-text');
-            if (isOpen) {
-                statusBadge.className = 'status-badge open';
-                statusText.innerText = 'פתוח כעת – מוזמנים להתקשר!';
-            } else {
-                statusBadge.className = 'status-badge closed';
-                statusText.innerText = 'סגור כעת – השאירו פרטים ונחזור אליכם';
+        // Lazy DOM caching for status badge
+        if (!statusBadgeEl) {
+            statusBadgeEl = document.getElementById('openingStatus');
+            if (statusBadgeEl) {
+                statusTextEl = statusBadgeEl.querySelector('.status-text');
+            }
+        }
+
+        if (statusBadgeEl) {
+            const isCurrentlyOpen = statusBadgeEl.classList.contains('open');
+            if (isOpen && !isCurrentlyOpen) {
+                statusBadgeEl.className = 'status-badge open';
+                if (statusTextEl) statusTextEl.innerText = 'פתוח כעת – מוזמנים להתקשר!';
+            } else if (!isOpen && (isCurrentlyOpen || !statusBadgeEl.classList.contains('closed'))) {
+                statusBadgeEl.className = 'status-badge closed';
+                if (statusTextEl) statusTextEl.innerText = 'סגור כעת – השאירו פרטים ונחזור אליכם';
             }
         }
         
