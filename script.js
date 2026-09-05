@@ -696,4 +696,306 @@ ${customMessage}`;
             cookieBanner.setAttribute('aria-hidden', 'true');
         });
     }
+
+    // 10. Interactive Chemistry Readiness Assessment Quiz Engine
+    const quizModal = document.getElementById('quizModal');
+    const openQuizBtn = document.getElementById('openQuizBtn');
+    const floatingQuizBtn = document.getElementById('floatingQuizBtn');
+    const closeQuizModal = document.getElementById('closeQuizModal');
+    const quizHeader = document.getElementById('quizHeader');
+    const quizTitle = document.getElementById('quizTitle');
+    const quizSubtitle = document.getElementById('quizSubtitle');
+    const quizProgressWrap = document.getElementById('quizProgressWrap');
+    const quizProgressBar = document.getElementById('quizProgressBar');
+    const quizBody = document.getElementById('quizBody');
+
+    if (quizModal && quizBody) {
+        let currentQuizState = {
+            track: '',
+            step: 0,
+            answers: []
+        };
+
+        const tracksData = [
+            {
+                id: 'highschool',
+                icon: '🏫',
+                title: 'תלמיד/ה בתיכון (4 או 5 יח\' לימוד)',
+                desc: 'הכנה לבגרות בכימיה, חיזוק החומר ומעבדות חקר'
+            },
+            {
+                id: 'prep',
+                icon: '🏛️',
+                title: 'תלמיד/ה במכינה אקדמית / מכללה',
+                desc: 'לימוד יסודות הכימיה, סטויכיומטריה והכנה לבחינות'
+            },
+            {
+                id: 'academic',
+                icon: '🔬',
+                title: 'סטודנט/ית באקדמיה (אורגנית / כללית / רפואה)',
+                desc: 'כימיה כללית, אורגנית, ביוכימיה ומנגנוני תגובה'
+            },
+            {
+                id: 'middleschool',
+                icon: '🎓',
+                title: 'חטיבת ביניים (כיתות ז\'-ט\')',
+                desc: 'בניית תשתית מדעית חזקה והבנת יסודות החומר'
+            }
+        ];
+
+        const quizQuestionsMap = {
+            highschool: [
+                {
+                    q: 'איך את/ה מרגיש/ה עם נושאי הליבה (מולריות, שיווי משקל, חומצות ובסיסים)?',
+                    options: [
+                        { text: 'מבין/ה מצוין, רוצה לשפר ל-90+ בבגרות! 🏆', score: 95, detail: 'רוצה להבטיח 95+ בבגרות' },
+                        { text: 'מבין/ה תאוריה, אבל מתקשה בחישובים ובשאלות בגרות מורכבות 📐', score: 65, detail: 'צריך/ה חיזוק בחישובים ותרגול בגרות' },
+                        { text: 'מרגיש/ה פער גדול וחוסר הבנה של הבסיס 🔴', score: 40, detail: 'זקוק/ה לסגירת פערים מהיסוד' }
+                    ]
+                },
+                {
+                    q: 'מתי המבחן / מתכונת / בגרות הקרובה שלך?',
+                    options: [
+                        { text: 'בעוד פחות מ-3 שבועות (צריך/ה מרתון דחוף!) ⚡', score: 10, detail: 'דחיפות גבוהה: מבחן קרוב' },
+                        { text: 'בעוד חודש-חודשיים (רוצה ליווי עקבי) 📅', score: 20, detail: 'ליווי רציף לקראת המבנים' },
+                        { text: 'תחילת שנה / בונה תשתית לקראת י"א-י"ב 🎓', score: 30, detail: 'בניית תשתית מוקדמת' }
+                    ]
+                },
+                {
+                    q: 'איזה סגנון לימוד הכי עוזר לך להבין חומר מורכב?',
+                    options: [
+                        { text: 'שיעור אונליין מהבית עם לוח דיגיטלי מתקדם 💻', score: 5, detail: 'העדפה: שיעור אונליין' },
+                        { text: 'שיעור פרונטלי פנים-אל-פנים ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
+                    ]
+                }
+            ],
+            prep: [
+                {
+                    q: 'איזה תחום בכימיה מעכב אותך כרגע במכינה?',
+                    options: [
+                        { text: 'חישובים סטויכיומטריים, ריכוזים ומולים 📐', score: 60, detail: 'מתקשה בחישובים וריכוזים' },
+                        { text: 'מבנה אטומי, קשרים כימיים וכוחות בין-מולקולריים ⚛️', score: 70, detail: 'צריך/ה חיזוק בקשרים ומבנה' },
+                        { text: 'עומס חומר מטורף וקצב מרצה מהיר מדי ⏱️', score: 50, detail: 'עומס חומר וקצב מהיר' }
+                    ]
+                },
+                {
+                    q: 'מהי מטרת העל שלך במכינה?',
+                    options: [
+                        { text: 'קבלת פטור / מעבר בטוח של קורס הכימיה 🎯', score: 20, detail: 'יעד: מעבר בטוח' },
+                        { text: 'ציון 85+ לקבלה לפקולטה מבוקשת (הנדסה / רפואה) 🏆', score: 30, detail: 'יעד: 85+ לקבלה יוקרתית' }
+                    ]
+                },
+                {
+                    q: 'מהו אופן הלימוד המועדף עליך?',
+                    options: [
+                        { text: 'שיעורי אונליין גמישים ב-Zoom 💻', score: 5, detail: 'העדפה: Zoom אונליין' },
+                        { text: 'שיעור פרונטלי ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
+                    ]
+                }
+            ],
+            academic: [
+                {
+                    q: 'איזה קורס אקדמי את/ה לומד/ת כרגע?',
+                    options: [
+                        { text: 'כימיה אורגנית / ביוכימיה / מנגנוני תגובה 🧬', score: 65, detail: 'קורס: כימיה אורגנית' },
+                        { text: 'כימיה כללית / פיזיקלית / יסודות 🧪', score: 75, detail: 'קורס: כימיה כללית' },
+                        { text: 'קורס ייעודי למקצועות הרפואה / סיעוד / הנדסה 🏥', score: 70, detail: 'קורס: כימיה למקצועות הבריאות/הנדסה' }
+                    ]
+                },
+                {
+                    q: 'מהו המכשול המרכזי בלמידה לקראת המבחן?',
+                    options: [
+                        { text: 'הבנת מנגנוני תגובה וסטריאוכימיה באורגנית ⚛️', score: 50, detail: 'אתגר: מנגנונים וסטריאוכימיה' },
+                        { text: 'פתרון מבחנים משנים קודמות ומטלות הגשה 📝', score: 60, detail: 'אתגר: פתרון מבחנים ומטלות' }
+                    ]
+                },
+                {
+                    q: 'מהו פורמט השיעור המבוקש?',
+                    options: [
+                        { text: 'אונליין ב-Zoom עם לוח דיגיטלי מתקדם 💻', score: 5, detail: 'העדפה: אונליין Zoom' },
+                        { text: 'פרונטלי ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
+                    ]
+                }
+            ],
+            middleschool: [
+                {
+                    q: 'מה האתגר המרכזי של התלמיד/ה במדעים וכימיה?',
+                    options: [
+                        { text: 'בניית בסיס חזק והבנת המושגים הראשוניים 🧪', score: 80, detail: 'בניית תשתית מדעית' },
+                        { text: 'שיפור הציונים לקראת תיכון ומגמות מדעיות 📈', score: 85, detail: 'שיפור ציונים למגמות' }
+                    ]
+                },
+                {
+                    q: 'מהו המועד המועדף להתחלת הלימוד?',
+                    options: [
+                        { text: 'מיידי - שבועות קרובים ⚡', score: 10, detail: 'התחלה מיידית' },
+                        { text: 'בניית תוכנית תקופתית 📅', score: 15, detail: 'תוכנית עבודה תקופתית' }
+                    ]
+                },
+                {
+                    q: 'איזה פורמט עדיף לילד/ה?',
+                    options: [
+                        { text: 'שיעור אונליין חווייתי 💻', score: 5, detail: 'העדפה: אונליין' },
+                        { text: 'שיעור פרונטלי ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
+                    ]
+                }
+            ]
+        };
+
+        function openQuiz() {
+            quizModal.classList.add('active');
+            quizModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            resetQuiz();
+        }
+
+        function closeQuiz() {
+            quizModal.classList.remove('active');
+            quizModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        function resetQuiz() {
+            currentQuizState = { track: '', step: 0, answers: [] };
+            quizTitle.textContent = 'בחרו את מסלול הלימוד שלכם';
+            quizSubtitle.textContent = 'אבחון קצר של 45 שניות לקבלת תובנה והמלצת לימוד אישית מעידית';
+            quizProgressWrap.style.display = 'none';
+            renderTracksStep();
+        }
+
+        function renderTracksStep() {
+            let html = '<div class="quiz-options-grid">';
+            tracksData.forEach(t => {
+                html += `
+                    <div class="quiz-option-card" data-track="${t.id}">
+                        <div class="quiz-option-icon">${t.icon}</div>
+                        <div class="quiz-option-text">
+                            <h4>${t.title}</h4>
+                            <p>${t.desc}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            quizBody.innerHTML = html;
+
+            quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const trackId = card.getAttribute('data-track');
+                    currentQuizState.track = trackId;
+                    currentQuizState.step = 1;
+                    renderQuestionStep();
+                });
+            });
+        }
+
+        function renderQuestionStep() {
+            const questions = quizQuestionsMap[currentQuizState.track] || quizQuestionsMap.highschool;
+            const currentQ = questions[currentQuizState.step - 1];
+
+            if (!currentQ) {
+                renderResultStep();
+                return;
+            }
+
+            quizProgressWrap.style.display = 'block';
+            const progressPct = Math.round((currentQuizState.step / questions.length) * 100);
+            quizProgressBar.style.width = progressPct + '%';
+
+            quizTitle.textContent = `שאלה ${currentQuizState.step} מתוך ${questions.length}`;
+            quizSubtitle.textContent = currentQ.q;
+
+            let html = '<div class="quiz-options-grid">';
+            currentQ.options.forEach((opt, idx) => {
+                html += `
+                    <div class="quiz-option-card" data-opt-idx="${idx}">
+                        <div class="quiz-option-icon">✏️</div>
+                        <div class="quiz-option-text">
+                            <h4>${opt.text}</h4>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            quizBody.innerHTML = html;
+
+            quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const optIdx = parseInt(card.getAttribute('data-opt-idx'), 10);
+                    const selectedOpt = currentQ.options[optIdx];
+                    currentQuizState.answers.push(selectedOpt);
+
+                    currentQuizState.step++;
+                    if (currentQuizState.step > questions.length) {
+                        renderResultStep();
+                    } else {
+                        renderQuestionStep();
+                    }
+                });
+            });
+        }
+
+        function renderResultStep() {
+            quizProgressWrap.style.display = 'none';
+            quizTitle.textContent = 'תוצאת אבחון הטיפול והמוכנות שלך';
+            quizSubtitle.textContent = 'הניתוח הושלם בהצלחה! להלן הסיכום וההמלצה של עידית:';
+
+            let totalScore = 0;
+            let detailsList = [];
+            currentQuizState.answers.forEach(a => {
+                totalScore += a.score;
+                if (a.detail) detailsList.push(a.detail);
+            });
+
+            let finalScore = Math.min(Math.max(totalScore, 55), 94);
+            let trackInfo = tracksData.find(t => t.id === currentQuizState.track) || tracksData[0];
+
+            let feedbackText = `זיהינו שקיימת תשתית טובה, אך נדרש מיקוד בפתרון תרגילים מורכבים והקניית שיטות עבודה של מכון ויצמן. עם ליווי מותאם, ניתן להגיע ל-90+ בקלות!`;
+            if (finalScore < 65) {
+                feedbackText = `מתוצאות האבחון עולה כי קיים פער בבסיס ובחישובים הנדרשים. מומלץ לבנות תוכנית עבודה מרוכזת לסגירת הפערים מהיסוד!`;
+            } else if (finalScore > 85) {
+                feedbackText = `תוצאות האבחון מצוינות! יש לך פוטנציאל גבוה להצטיינות. שיעור ממוקד יעזור לך לחדד את שאלות המכשול ולהבטיח 95+!`;
+            }
+
+            const waText = encodeURIComponent(
+                `היי עידית! 👋\n` +
+                `ביצעתי כעת את מבחן המוכנות בכימיה באתר שלך.\n\n` +
+                `📊 **תוצאות האבחון שלי:**\n` +
+                `- 🎓 **מסלול לימוד**: ${trackInfo.title}\n` +
+                `- 📈 **ציון מוכנות מחושב**: ${finalScore}%\n` +
+                `- 📝 **דגשים שסומנו**: ${detailsList.join(', ')}\n\n` +
+                `אשמח להתייעץ איתך ולבחון תיאום שיעור ניסיון! 🚀`
+            );
+
+            const waUrl = `https://wa.me/972502719917?text=${waText}`;
+
+            let html = `
+                <div class="quiz-result-box">
+                    <span class="quiz-badge">📊 דוח מוכנות אישי</span>
+                    <div class="quiz-score-badge">מוכנות מחושבת: ${finalScore}%</div>
+                    <div class="quiz-result-feedback">
+                        <strong>💡 ניתוח והמלצה של עידית:</strong><br>
+                        ${feedbackText}
+                    </div>
+                    <a href="${waUrl}" target="_blank" class="btn-whatsapp-quiz">
+                        💬 שליחת התוצאות והתייעצות מיידית עם עידית בוואטסאפ 🚀
+                    </a>
+                </div>
+            `;
+
+            quizBody.innerHTML = html;
+        }
+
+        // Event Listeners
+        if (openQuizBtn) openQuizBtn.addEventListener('click', openQuiz);
+        if (floatingQuizBtn) floatingQuizBtn.addEventListener('click', openQuiz);
+        if (closeQuizModal) closeQuizModal.addEventListener('click', closeQuiz);
+
+        window.addEventListener('click', (e) => {
+            if (e.target === quizModal) {
+                closeQuiz();
+            }
+        });
+    }
 });
+
