@@ -4,7 +4,8 @@
   "description": "Website for Idit Chemistry Tutor",
   "main": "script.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node server.js"
   },
   "devDependencies": {
     "jest": "^29.7.0",
@@ -12,5 +13,9 @@
   },
   "jest": {
     "testEnvironment": "jsdom"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
   }
 }
