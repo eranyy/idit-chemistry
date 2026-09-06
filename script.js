@@ -7,9 +7,25 @@
         const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
         // Force refresh
-        window.location.reload();
     }
 })();
+
+// Reusable Web3Forms API email dispatch helper
+function sendWeb3FormEmail({ accessKey, subject, fromName, name, email, message, errorTag = "Admin" }) {
+    if (!accessKey) return Promise.resolve();
+    return fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+            access_key: accessKey,
+            subject: subject,
+            from_name: fromName,
+            name: name,
+            email: email,
+            message: message
+        })
+    }).catch(err => console.error(`${errorTag} contact dispatch error:`, err));
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -273,35 +289,17 @@ document.addEventListener('DOMContentLoaded', () => {
 תוכן ההודעה:
 ${customMessage}`;
 
-                // Dispatch to Admin
-                fetch('https://api.web3forms.com/submit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({
-                        access_key: adminKey,
-                        subject: emailSubject,
-                        from_name: "אתר עידית כימיה - פניות",
-                        name: nameInput.value.trim(),
-                        email: "no-reply@idit-chemistry.co.il",
-                        message: emailBody
-                    })
-                }).catch(err => console.error("Admin contact dispatch error:", err));
+                const emailParams = {
+                    subject: emailSubject,
+                    fromName: "אתר עידית כימיה - פניות",
+                    name: nameInput.value.trim(),
+                    email: "no-reply@idit-chemistry.co.il",
+                    message: emailBody
+                };
 
-                // Dispatch to Idit
-                if (iditKey) {
-                    fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify({
-                            access_key: iditKey,
-                            subject: emailSubject,
-                            from_name: "אתר עידית כימיה - פניות",
-                            name: nameInput.value.trim(),
-                            email: "no-reply@idit-chemistry.co.il",
-                            message: emailBody
-                        })
-                    }).catch(err => console.error("Idit contact dispatch error:", err));
-                }
+                // Dispatch to Admin & Idit
+                sendWeb3FormEmail({ ...emailParams, accessKey: adminKey, errorTag: "Admin" });
+                sendWeb3FormEmail({ ...emailParams, accessKey: iditKey, errorTag: "Idit" });
                 
                 // Hide Form & Show Success Message
                 contactForm.style.display = 'none';
@@ -466,35 +464,17 @@ ${customMessage}`;
             const emailSubject = `המלצה חדשה באתר מורה לכימיה - ${name}`;
             const emailBody = `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`;
 
-            // Dispatch to Admin
-            fetch('https://api.web3forms.com/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({
-                    access_key: adminKey,
-                    subject: emailSubject,
-                    from_name: "אתר עידית כימיה - המלצות",
-                    name: name,
-                    email: "no-reply@idit-chemistry.co.il",
-                    message: emailBody
-                })
-            }).catch(err => console.error("Admin review dispatch error:", err));
+            const reviewEmailParams = {
+                subject: emailSubject,
+                fromName: "אתר עידית כימיה - המלצות",
+                name: name,
+                email: "no-reply@idit-chemistry.co.il",
+                message: emailBody
+            };
 
-            // Dispatch to Idit
-            if (iditKey) {
-                fetch('https://api.web3forms.com/submit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({
-                        access_key: iditKey,
-                        subject: emailSubject,
-                        from_name: "אתר עידית כימיה - המלצות",
-                        name: name,
-                        email: "no-reply@idit-chemistry.co.il",
-                        message: emailBody
-                    })
-                }).catch(err => console.error("Idit review dispatch error:", err));
-            }
+            // Dispatch to Admin & Idit
+            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: adminKey, errorTag: "Admin review" });
+            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: iditKey, errorTag: "Idit review" });
             
             hideReviewModal();
             
