@@ -4,6 +4,7 @@
   "description": "Website for Idit Chemistry Tutor",
   "main": "script.js",
   "scripts": {
+    "start": "node server.js",
     "test": "jest"
   },
   "devDependencies": {
@@ -12,5 +13,11 @@
   },
   "jest": {
     "testEnvironment": "jsdom"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "node-fetch": "^2.7.0"
   }
 }
