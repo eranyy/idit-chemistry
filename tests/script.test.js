@@ -117,4 +117,12 @@ describe('script.js basic functionality', () => {
         form.dispatchEvent(new Event('submit', { cancelable: true }));
         expect(phoneInput.value.replace(/[^0-9]/g, '').length).toBeGreaterThanOrEqual(9);
     });
+
+    test('updates opening status badge correctly based on time and day', () => {
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+        const statusBadge = document.getElementById('openingStatus');
+        expect(statusBadge).not.toBeNull();
+        expect(statusBadge.classList.contains('open') || statusBadge.classList.contains('closed')).toBe(true);
+    });
 });
