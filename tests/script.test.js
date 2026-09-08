@@ -8,7 +8,21 @@ const path = require('path');
 const scriptContent = fs.readFileSync(path.resolve(__dirname, '../script.js'), 'utf8');
 
 describe('script.js basic functionality', () => {
+
+    let originalAddEventListener;
+    let eventListeners = [];
+
     beforeEach(() => {
+        originalAddEventListener = document.addEventListener;
+        document.addEventListener = function (type, listener, options) {
+            eventListeners.push({ type, listener, options, target: document });
+            originalAddEventListener.call(document, type, listener, options);
+        };
+        window.addEventListener = function (type, listener, options) {
+            eventListeners.push({ type, listener, options, target: window });
+            originalAddEventListener.call(window, type, listener, options);
+        };
+
         document.body.innerHTML = `
             <header id="header"></header>
             <span id="currentYear"></span>
@@ -17,10 +31,46 @@ describe('script.js basic functionality', () => {
             <table id="hoursTable">
                 <tr data-day="0"><td>Sun</td></tr>
                 <tr data-day="1"><td>Mon</td></tr>
+                <tr data-day="2"><td>Tue</td></tr>
+                <tr data-day="3"><td>Wed</td></tr>
+                <tr data-day="4"><td>Thu</td></tr>
+                <tr data-day="5"><td>Fri</td></tr>
+                <tr data-day="6"><td>Sat</td></tr>
             </table>
             <div id="openingStatus"><span class="status-text"></span></div>
+            <form id="contactForm">
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="0501234567" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
+                <div id="formFeedback"></div>
+            </form>
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel"></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnEnlargeText"><span class="btn-label"></span></button>
+            <button id="btnContrast"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
         `;
     });
+
+    afterEach(() => {
+        eventListeners.forEach(({ type, listener, options, target }) => {
+            target.removeEventListener(type, listener, options);
+        });
+        eventListeners = [];
+        document.addEventListener = originalAddEventListener;
+        window.addEventListener = originalAddEventListener;
+        document.body.innerHTML = '';
+        localStorage.clear();
+        jest.useRealTimers();
+        jest.restoreAllMocks();
+    });
+
 
     test('sets current year in footer', () => {
         eval(scriptContent);
@@ -66,16 +116,7 @@ describe('script.js basic functionality', () => {
     });
 
     test('handles fetch network error in contact form dispatch gracefully', async () => {
-        document.body.innerHTML += `
-            <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="0501234567" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
-                <div id="formFeedback"></div>
-            </form>
-        `;
+
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
         window.open = jest.fn();
@@ -92,21 +133,12 @@ describe('script.js basic functionality', () => {
     });
 
     test('validates contact form phone input edge cases correctly', () => {
-        document.body.innerHTML += `
-            <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="12345" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
-                <div id="formFeedback"></div>
-            </form>
-        `;
+
         eval(scriptContent);
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
         const form = document.getElementById('contactForm');
-        const phoneInput = document.getElementById('contactPhone');
+        const phoneInput = document.getElementById('phoneInput');
 
         // Test short phone (< 9 digits)
         form.dispatchEvent(new Event('submit', { cancelable: true }));
@@ -117,4 +149,84 @@ describe('script.js basic functionality', () => {
         form.dispatchEvent(new Event('submit', { cancelable: true }));
         expect(phoneInput.value.replace(/[^0-9]/g, '').length).toBeGreaterThanOrEqual(9);
     });
+
+
+    const mockDate = (day, hours, minutes) => {
+        const dayOffset = day + 1;
+        const h = hours.toString().padStart(2, '0');
+        const m = minutes.toString().padStart(2, '0');
+        const mockDateString = '2023-10-0' + dayOffset + 'T' + h + ':' + m + ':00';
+
+        jest.useFakeTimers().setSystemTime(new Date(mockDateString));
+    };
+
+
+    test('checkStatus - Sun-Thu: Open between 08:00 and 20:00', () => {
+        mockDate(0, 10, 0);
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const statusBadgeEl = document.getElementById('openingStatus');
+
+            expect(statusBadgeEl).not.toBeNull();
+        expect(statusBadgeEl.classList.contains('open')).toBe(true);
+        expect(statusBadgeEl.querySelector('.status-text').innerText).toContain('פתוח');
+        });
+
+    test('checkStatus - Sun-Thu: Closed outside 08:00 and 20:00', () => {
+        mockDate(1, 7, 0);
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const statusBadgeEl = document.getElementById('openingStatus');
+
+            expect(statusBadgeEl).not.toBeNull();
+        expect(statusBadgeEl.classList.contains('closed')).toBe(true);
+        expect(statusBadgeEl.querySelector('.status-text').innerText).toContain('סגור');
+        });
+
+    test('checkStatus - Friday: Open between 08:00 and 15:00/17:00', () => {
+        mockDate(5, 10, 0);
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const statusBadgeEl = document.getElementById('openingStatus');
+
+            expect(statusBadgeEl).not.toBeNull();
+        expect(statusBadgeEl.classList.contains('open')).toBe(true);
+        });
+
+    test('checkStatus - Friday: Closed late afternoon', () => {
+        mockDate(5, 18, 0);
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const statusBadgeEl = document.getElementById('openingStatus');
+
+            expect(statusBadgeEl).not.toBeNull();
+        expect(statusBadgeEl.classList.contains('closed')).toBe(true);
+        });
+
+    test('checkStatus - Saturday: Open between 18:00 and 21:00', () => {
+        mockDate(6, 19, 0);
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const statusBadgeEl = document.getElementById('openingStatus');
+
+            expect(statusBadgeEl).not.toBeNull();
+        expect(statusBadgeEl.classList.contains('open')).toBe(true);
+        });
+
+    test('checkStatus - Saturday: Closed before 18:00', () => {
+        mockDate(6, 12, 0);
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const statusBadgeEl = document.getElementById('openingStatus');
+
+            expect(statusBadgeEl).not.toBeNull();
+        expect(statusBadgeEl.classList.contains('closed')).toBe(true);
+        });
+
 });
