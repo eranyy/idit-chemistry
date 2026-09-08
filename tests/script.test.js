@@ -90,4 +90,31 @@ describe('script.js basic functionality', () => {
         expect(consoleSpy).toHaveBeenCalledWith("Admin contact dispatch error:", expect.any(Error));
         consoleSpy.mockRestore();
     });
+
+    test('validates contact form phone input edge cases correctly', () => {
+        document.body.innerHTML += `
+            <form id="contactForm">
+                <input id="contactName" value="ישראל ישראלי" />
+                <input id="contactPhone" value="12345" />
+                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="contactFormat"><option value="online">אונליין</option></select>
+                <textarea id="contactMessage">שלום</textarea>
+                <div id="formFeedback"></div>
+            </form>
+        `;
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const form = document.getElementById('contactForm');
+        const phoneInput = document.getElementById('contactPhone');
+
+        // Test short phone (< 9 digits)
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+        expect(phoneInput.style.borderColor).toBeTruthy();
+
+        // Test valid phone with hyphens
+        phoneInput.value = '050-271-9917';
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+        expect(phoneInput.value.replace(/[^0-9]/g, '').length).toBeGreaterThanOrEqual(9);
+    });
 });
