@@ -545,16 +545,17 @@ ${customMessage}`;
             // Text size
             html.classList.remove('acc-text-lg', 'acc-text-xl');
             btnEnlargeText.classList.remove('active');
+            const btnEnlargeTextLabel = btnEnlargeText.querySelector('.btn-label');
             if (accSettings.textSize === 'lg') {
                 html.classList.add('acc-text-lg');
                 btnEnlargeText.classList.add('active');
-                btnEnlargeText.querySelector('.btn-label').innerText = 'גופן: גדול';
+                btnEnlargeTextLabel.innerText = 'גופן: גדול';
             } else if (accSettings.textSize === 'xl') {
                 html.classList.add('acc-text-xl');
                 btnEnlargeText.classList.add('active');
-                btnEnlargeText.querySelector('.btn-label').innerText = 'גופן: ענק';
+                btnEnlargeTextLabel.innerText = 'גופן: ענק';
             } else {
-                btnEnlargeText.querySelector('.btn-label').innerText = 'הגדלת גופן';
+                btnEnlargeTextLabel.innerText = 'הגדלת גופן';
             }
             
             // Contrast
