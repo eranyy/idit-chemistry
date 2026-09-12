@@ -8,6 +8,33 @@ const path = require('path');
 const scriptContent = fs.readFileSync(path.resolve(__dirname, '../script.js'), 'utf8');
 
 describe('script.js basic functionality', () => {
+
+    let listeners = [];
+    const originalAddEventListener = document.addEventListener;
+    document.addEventListener = function(type, listener, options) {
+        listeners.push({type, listener, options});
+        originalAddEventListener.call(document, type, listener, options);
+    };
+
+    const originalWindowAddEventListener = window.addEventListener;
+    window.addEventListener = function(type, listener, options) {
+        listeners.push({type, listener, options, isWindow: true});
+        originalWindowAddEventListener.call(window, type, listener, options);
+    };
+
+    afterEach(() => {
+        listeners.forEach(({type, listener, options, isWindow}) => {
+            if (isWindow) {
+                window.removeEventListener(type, listener, options);
+            } else {
+                document.removeEventListener(type, listener, options);
+            }
+        });
+        listeners = [];
+        document.body.innerHTML = '';
+        jest.restoreAllMocks();
+    });
+
     beforeEach(() => {
         document.body.innerHTML = `
             <header id="header"></header>
@@ -21,6 +48,10 @@ describe('script.js basic functionality', () => {
             <div id="openingStatus"><span class="status-text"></span></div>
         `;
     });
+
+
+
+
 
     test('sets current year in footer', () => {
         eval(scriptContent);
@@ -57,6 +88,17 @@ describe('script.js basic functionality', () => {
     });
 
     test('handles invalid JSON in localStorage accSettings gracefully', () => {
+        document.body.innerHTML += `
+            <div id="accessibilityToggle"></div>
+            <div id="accessibilityPanel"></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnEnlargeText"><span class="btn-label"></span></button>
+            <button id="btnContrast"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
+        `;
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         localStorage.setItem('accSettings', 'invalid json{');
         eval(scriptContent);
@@ -68,11 +110,11 @@ describe('script.js basic functionality', () => {
     test('handles fetch network error in contact form dispatch gracefully', async () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="0501234567" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="0501234567" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -94,11 +136,11 @@ describe('script.js basic functionality', () => {
     test('validates contact form phone input edge cases correctly', () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="12345" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="12345" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -106,7 +148,7 @@ describe('script.js basic functionality', () => {
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
         const form = document.getElementById('contactForm');
-        const phoneInput = document.getElementById('contactPhone');
+        const phoneInput = document.getElementById('phoneInput');
 
         // Test short phone (< 9 digits)
         form.dispatchEvent(new Event('submit', { cancelable: true }));
@@ -125,4 +167,40 @@ describe('script.js basic functionality', () => {
         expect(statusBadge).not.toBeNull();
         expect(statusBadge.classList.contains('open') || statusBadge.classList.contains('closed')).toBe(true);
     });
+
+    test('test successful email dispatch in sendWeb3FormEmail', async () => {
+        eval(scriptContent);
+
+        const mockFetch = jest.fn().mockResolvedValue({ ok: true });
+        global.fetch = mockFetch;
+
+        const emailParams = {
+            accessKey: 'dummy-key',
+            subject: 'Test Subject',
+            fromName: 'Test Name',
+            name: 'John Doe',
+            email: 'john@example.com',
+            message: 'Test Message',
+            errorTag: 'Test'
+        };
+
+        await sendWeb3FormEmail(emailParams);
+
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(mockFetch).toHaveBeenCalledWith('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                access_key: 'dummy-key',
+                subject: 'Test Subject',
+                from_name: 'Test Name',
+                name: 'John Doe',
+                email: 'john@example.com',
+                message: 'Test Message'
+            })
+        });
+
+        global.fetch.mockRestore();
+    });
+
 });
