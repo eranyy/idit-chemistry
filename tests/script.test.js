@@ -125,4 +125,25 @@ describe('script.js basic functionality', () => {
         expect(statusBadge).not.toBeNull();
         expect(statusBadge.classList.contains('open') || statusBadge.classList.contains('closed')).toBe(true);
     });
+
+    test('toggles accessibility floating panel and applies contrast setting', () => {
+        document.body.innerHTML += `
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel"></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnContrast"></button>
+        `;
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const accToggle = document.getElementById('accessibilityToggle');
+        const accPanel = document.getElementById('accessibilityPanel');
+        const btnContrast = document.getElementById('btnContrast');
+
+        accToggle.click();
+        expect(accPanel.classList.contains('active')).toBe(true);
+
+        btnContrast.click();
+        expect(document.body.classList.contains('acc-contrast')).toBe(true);
+    });
 });
