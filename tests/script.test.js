@@ -8,6 +8,36 @@ const path = require('path');
 const scriptContent = fs.readFileSync(path.resolve(__dirname, '../script.js'), 'utf8');
 
 describe('script.js basic functionality', () => {
+
+    const originalAddEventListener = document.addEventListener;
+    let documentListeners = [];
+    document.addEventListener = function(type, listener, options) {
+        documentListeners.push({ type, listener, options });
+        return originalAddEventListener.call(document, type, listener, options);
+    };
+
+    const originalWindowAddEventListener = window.addEventListener;
+    let windowListeners = [];
+    window.addEventListener = function(type, listener, options) {
+        windowListeners.push({ type, listener, options });
+        return originalWindowAddEventListener.call(window, type, listener, options);
+    };
+
+    afterEach(() => {
+        documentListeners.forEach(({ type, listener, options }) => {
+            document.removeEventListener(type, listener, options);
+        });
+        documentListeners = [];
+
+        windowListeners.forEach(({ type, listener, options }) => {
+            window.removeEventListener(type, listener, options);
+        });
+        windowListeners = [];
+
+        // Also clear local storage
+        localStorage.clear();
+    });
+
     beforeEach(() => {
         document.body.innerHTML = `
             <header id="header"></header>
@@ -19,7 +49,19 @@ describe('script.js basic functionality', () => {
                 <tr data-day="1"><td>Mon</td></tr>
             </table>
             <div id="openingStatus"><span class="status-text"></span></div>
-        `;
+
+            <!-- Accessibility Panel Elements -->
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel">
+                <button id="accessibilityClose"></button>
+                <button id="btnEnlargeText"><span class="btn-label">הגדלת גופן</span></button>
+                <button id="btnContrast"></button>
+                <button id="btnMonochrome"></button>
+                <button id="btnLinks"></button>
+                <button id="btnFont"></button>
+                <button id="btnReset"></button>
+            </div>
+`;
     });
 
     test('sets current year in footer', () => {
@@ -125,4 +167,106 @@ describe('script.js basic functionality', () => {
         expect(statusBadge).not.toBeNull();
         expect(statusBadge.classList.contains('open') || statusBadge.classList.contains('closed')).toBe(true);
     });
+
+    test('toggles accessibility panel and handles escape key', () => {
+        eval(scriptContent);
+        // We dispatch DOMContentLoaded to trigger any listeners if they were attached there,
+        // although in script.js it's immediately executed.
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const accToggle = document.getElementById('accessibilityToggle');
+        const accPanel = document.getElementById('accessibilityPanel');
+        const accClose = document.getElementById('accessibilityClose');
+
+        // Initial state
+        expect(accPanel.classList.contains('active')).toBe(false);
+
+        // Open panel
+        accToggle.click();
+        expect(accPanel.classList.contains('active')).toBe(true);
+        expect(accPanel.getAttribute('aria-hidden')).toBe('false');
+
+        // Close with close button
+        accClose.click();
+        expect(accPanel.classList.contains('active')).toBe(false);
+        expect(accPanel.getAttribute('aria-hidden')).toBe('true');
+
+        // Open again
+        accToggle.click();
+        expect(accPanel.classList.contains('active')).toBe(true);
+
+        // Close with Escape key
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        expect(accPanel.classList.contains('active')).toBe(false);
+        expect(accPanel.getAttribute('aria-hidden')).toBe('true');
+    });
+
+
+    test('applies accessibility settings on button click and saves to localStorage', () => {
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const btnContrast = document.getElementById('btnContrast');
+        const btnEnlargeText = document.getElementById('btnEnlargeText');
+        const btnReset = document.getElementById('btnReset');
+
+        // Initial state
+        expect(document.body.classList.contains('acc-contrast')).toBe(false);
+
+        // Click contrast button
+        btnContrast.click();
+        expect(document.body.classList.contains('acc-contrast')).toBe(true);
+        expect(btnContrast.classList.contains('active')).toBe(true);
+
+        // Check localStorage
+        const storedSettings = JSON.parse(localStorage.getItem('accSettings'));
+        expect(storedSettings.contrast).toBe(true);
+
+        // Click enlarge text button (cycles through sizes)
+        btnEnlargeText.click();
+        expect(document.documentElement.classList.contains('acc-text-lg')).toBe(true);
+        const storedSettings2 = JSON.parse(localStorage.getItem('accSettings'));
+        expect(storedSettings2.textSize).toBe('lg');
+
+        // Reset
+        btnReset.click();
+        expect(document.body.classList.contains('acc-contrast')).toBe(false);
+        expect(document.documentElement.classList.contains('acc-text-lg')).toBe(false);
+
+        const storedSettings3 = JSON.parse(localStorage.getItem('accSettings'));
+        expect(storedSettings3.contrast).toBe(false);
+        expect(storedSettings3.textSize).toBe('md');
+    });
+
+
+    test('loads accessibility settings from localStorage on initialization', () => {
+        // Pre-populate localStorage with specific settings
+        const initialSettings = {
+            textSize: 'xl',
+            contrast: false,
+            monochrome: true,
+            links: true,
+            font: false
+        };
+        localStorage.setItem('accSettings', JSON.stringify(initialSettings));
+
+        // Evaluate script and trigger DOMContentLoaded
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        // Verify settings were applied
+        expect(document.documentElement.classList.contains('acc-text-xl')).toBe(true);
+        expect(document.documentElement.classList.contains('acc-monochrome')).toBe(true);
+        expect(document.body.classList.contains('acc-links')).toBe(true);
+
+        // Verify other classes are absent
+        expect(document.body.classList.contains('acc-contrast')).toBe(false);
+        expect(document.body.classList.contains('acc-font')).toBe(false);
+
+        // Check if buttons got active state
+        expect(document.getElementById('btnEnlargeText').classList.contains('active')).toBe(true);
+        expect(document.getElementById('btnMonochrome').classList.contains('active')).toBe(true);
+        expect(document.getElementById('btnLinks').classList.contains('active')).toBe(true);
+    });
+
 });
