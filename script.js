@@ -844,29 +844,44 @@ ${customMessage}`;
         }
 
         function renderTracksStep() {
-            let html = '<div class="quiz-options-grid">';
-            tracksData.forEach(t => {
-                html += `
-                    <div class="quiz-option-card" data-track="${t.id}">
-                        <div class="quiz-option-icon">${t.icon}</div>
-                        <div class="quiz-option-text">
-                            <h4>${t.title}</h4>
-                            <p>${t.desc}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            quizBody.innerHTML = html;
+            quizBody.textContent = '';
+            const grid = document.createElement('div');
+            grid.className = 'quiz-options-grid';
 
-            quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
+            tracksData.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'quiz-option-card';
+                card.setAttribute('data-track', t.id);
+
+                const icon = document.createElement('div');
+                icon.className = 'quiz-option-icon';
+                icon.textContent = t.icon;
+
+                const textWrap = document.createElement('div');
+                textWrap.className = 'quiz-option-text';
+
+                const title = document.createElement('h4');
+                title.textContent = t.title;
+
+                const desc = document.createElement('p');
+                desc.textContent = t.desc;
+
+                textWrap.appendChild(title);
+                textWrap.appendChild(desc);
+
+                card.appendChild(icon);
+                card.appendChild(textWrap);
+
                 card.addEventListener('click', () => {
-                    const trackId = card.getAttribute('data-track');
-                    currentQuizState.track = trackId;
+                    currentQuizState.track = t.id;
                     currentQuizState.step = 1;
                     renderQuestionStep();
                 });
+
+                grid.appendChild(card);
             });
+
+            quizBody.appendChild(grid);
         }
 
         function renderQuestionStep() {
@@ -885,26 +900,32 @@ ${customMessage}`;
             quizTitle.textContent = `שאלה ${currentQuizState.step} מתוך ${questions.length}`;
             quizSubtitle.textContent = currentQ.q;
 
-            let html = '<div class="quiz-options-grid">';
+            quizBody.textContent = '';
+            const grid = document.createElement('div');
+            grid.className = 'quiz-options-grid';
+
             currentQ.options.forEach((opt, idx) => {
-                html += `
-                    <div class="quiz-option-card" data-opt-idx="${idx}">
-                        <div class="quiz-option-icon">✏️</div>
-                        <div class="quiz-option-text">
-                            <h4>${opt.text}</h4>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            quizBody.innerHTML = html;
+                const card = document.createElement('div');
+                card.className = 'quiz-option-card';
+                card.setAttribute('data-opt-idx', idx);
 
-            quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
+                const icon = document.createElement('div');
+                icon.className = 'quiz-option-icon';
+                icon.textContent = '✏️';
+
+                const textWrap = document.createElement('div');
+                textWrap.className = 'quiz-option-text';
+
+                const title = document.createElement('h4');
+                title.textContent = opt.text;
+
+                textWrap.appendChild(title);
+
+                card.appendChild(icon);
+                card.appendChild(textWrap);
+
                 card.addEventListener('click', () => {
-                    const optIdx = parseInt(card.getAttribute('data-opt-idx'), 10);
-                    const selectedOpt = currentQ.options[optIdx];
-                    currentQuizState.answers.push(selectedOpt);
-
+                    currentQuizState.answers.push(opt);
                     currentQuizState.step++;
                     if (currentQuizState.step > questions.length) {
                         renderResultStep();
@@ -912,7 +933,11 @@ ${customMessage}`;
                         renderQuestionStep();
                     }
                 });
+
+                grid.appendChild(card);
             });
+
+            quizBody.appendChild(grid);
         }
 
         function renderResultStep() {
@@ -947,21 +972,45 @@ ${customMessage}`;
 
             const waUrl = `https://wa.me/972502719917?text=${waText}`;
 
-            let html = `
-                <div class="quiz-result-box">
-                    <span class="quiz-badge">📊 דוח אבחון אישי</span>
-                    <div class="quiz-score-badge">🎯 סיכום אבחון והתאמה אישית</div>
-                    <div class="quiz-result-feedback">
-                        <strong>💡 ניתוח והמלצה של עידית:</strong><br>
-                        ${feedbackText}
-                    </div>
-                    <a href="${waUrl}" target="_blank" class="btn-whatsapp-quiz">
-                        💬 שליחת התוצאות והתייעצות מיידית עם עידית בוואטסאפ 🚀
-                    </a>
-                </div>
-            `;
+            quizBody.textContent = '';
 
-            quizBody.innerHTML = html;
+            const resultBox = document.createElement('div');
+            resultBox.className = 'quiz-result-box';
+
+            const badge = document.createElement('span');
+            badge.className = 'quiz-badge';
+            badge.textContent = '📊 דוח אבחון אישי';
+
+            const scoreBadge = document.createElement('div');
+            scoreBadge.className = 'quiz-score-badge';
+            scoreBadge.textContent = '🎯 סיכום אבחון והתאמה אישית';
+
+            const feedbackBox = document.createElement('div');
+            feedbackBox.className = 'quiz-result-feedback';
+
+            const feedbackStrong = document.createElement('strong');
+            feedbackStrong.textContent = '💡 ניתוח והמלצה של עידית:';
+
+            const br = document.createElement('br');
+
+            const feedbackNode = document.createTextNode(feedbackText);
+
+            feedbackBox.appendChild(feedbackStrong);
+            feedbackBox.appendChild(br);
+            feedbackBox.appendChild(feedbackNode);
+
+            const waLink = document.createElement('a');
+            waLink.href = waUrl;
+            waLink.target = '_blank';
+            waLink.className = 'btn-whatsapp-quiz';
+            waLink.textContent = '💬 שליחת התוצאות והתייעצות מיידית עם עידית בוואטסאפ 🚀';
+
+            resultBox.appendChild(badge);
+            resultBox.appendChild(scoreBadge);
+            resultBox.appendChild(feedbackBox);
+            resultBox.appendChild(waLink);
+
+            quizBody.appendChild(resultBox);
         }
 
         // Event Listeners

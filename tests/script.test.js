@@ -8,6 +8,28 @@ const path = require('path');
 const scriptContent = fs.readFileSync(path.resolve(__dirname, '../script.js'), 'utf8');
 
 describe('script.js basic functionality', () => {
+    const originalAddEventListener = document.addEventListener;
+    let documentListeners = [];
+
+    beforeAll(() => {
+        document.addEventListener = function (type, listener, options) {
+            documentListeners.push({ type, listener, options });
+            return originalAddEventListener.call(document, type, listener, options);
+        };
+    });
+
+    afterAll(() => {
+        document.addEventListener = originalAddEventListener;
+    });
+
+    afterEach(() => {
+        documentListeners.forEach(({ type, listener, options }) => {
+            document.removeEventListener(type, listener, options);
+        });
+        documentListeners = [];
+        jest.restoreAllMocks();
+    });
+
     beforeEach(() => {
         document.body.innerHTML = `
             <header id="header"></header>
@@ -57,6 +79,17 @@ describe('script.js basic functionality', () => {
     });
 
     test('handles invalid JSON in localStorage accSettings gracefully', () => {
+        document.body.innerHTML += `
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel"></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnEnlargeText"></button>
+            <button id="btnContrast"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
+        `;
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         localStorage.setItem('accSettings', 'invalid json{');
         eval(scriptContent);
@@ -68,11 +101,11 @@ describe('script.js basic functionality', () => {
     test('handles fetch network error in contact form dispatch gracefully', async () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="0501234567" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="0501234567" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -94,11 +127,11 @@ describe('script.js basic functionality', () => {
     test('validates contact form phone input edge cases correctly', () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="12345" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="12345" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -106,7 +139,7 @@ describe('script.js basic functionality', () => {
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
         const form = document.getElementById('contactForm');
-        const phoneInput = document.getElementById('contactPhone');
+        const phoneInput = document.getElementById('phoneInput');
 
         // Test short phone (< 9 digits)
         form.dispatchEvent(new Event('submit', { cancelable: true }));
