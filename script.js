@@ -844,29 +844,42 @@ ${customMessage}`;
         }
 
         function renderTracksStep() {
-            let html = '<div class="quiz-options-grid">';
-            tracksData.forEach(t => {
-                html += `
-                    <div class="quiz-option-card" data-track="${t.id}">
-                        <div class="quiz-option-icon">${t.icon}</div>
-                        <div class="quiz-option-text">
-                            <h4>${t.title}</h4>
-                            <p>${t.desc}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            quizBody.innerHTML = html;
+            const grid = document.createElement('div');
+            grid.className = 'quiz-options-grid';
 
-            quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
+            tracksData.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'quiz-option-card';
+                card.setAttribute('data-track', t.id);
+
+                const icon = document.createElement('div');
+                icon.className = 'quiz-option-icon';
+                icon.textContent = t.icon;
+
+                const textWrap = document.createElement('div');
+                textWrap.className = 'quiz-option-text';
+
+                const h4 = document.createElement('h4');
+                h4.textContent = t.title;
+
+                const p = document.createElement('p');
+                p.textContent = t.desc;
+
+                textWrap.appendChild(h4);
+                textWrap.appendChild(p);
+                card.appendChild(icon);
+                card.appendChild(textWrap);
+
                 card.addEventListener('click', () => {
-                    const trackId = card.getAttribute('data-track');
-                    currentQuizState.track = trackId;
+                    currentQuizState.track = t.id;
                     currentQuizState.step = 1;
                     renderQuestionStep();
                 });
+
+                grid.appendChild(card);
             });
+
+            quizBody.replaceChildren(grid);
         }
 
         function renderQuestionStep() {
@@ -885,26 +898,30 @@ ${customMessage}`;
             quizTitle.textContent = `שאלה ${currentQuizState.step} מתוך ${questions.length}`;
             quizSubtitle.textContent = currentQ.q;
 
-            let html = '<div class="quiz-options-grid">';
+            const grid = document.createElement('div');
+            grid.className = 'quiz-options-grid';
+
             currentQ.options.forEach((opt, idx) => {
-                html += `
-                    <div class="quiz-option-card" data-opt-idx="${idx}">
-                        <div class="quiz-option-icon">✏️</div>
-                        <div class="quiz-option-text">
-                            <h4>${opt.text}</h4>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            quizBody.innerHTML = html;
+                const card = document.createElement('div');
+                card.className = 'quiz-option-card';
+                card.setAttribute('data-opt-idx', idx.toString());
 
-            quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
+                const icon = document.createElement('div');
+                icon.className = 'quiz-option-icon';
+                icon.textContent = '✏️';
+
+                const textWrap = document.createElement('div');
+                textWrap.className = 'quiz-option-text';
+
+                const h4 = document.createElement('h4');
+                h4.textContent = opt.text;
+
+                textWrap.appendChild(h4);
+                card.appendChild(icon);
+                card.appendChild(textWrap);
+
                 card.addEventListener('click', () => {
-                    const optIdx = parseInt(card.getAttribute('data-opt-idx'), 10);
-                    const selectedOpt = currentQ.options[optIdx];
-                    currentQuizState.answers.push(selectedOpt);
-
+                    currentQuizState.answers.push(opt);
                     currentQuizState.step++;
                     if (currentQuizState.step > questions.length) {
                         renderResultStep();
@@ -912,7 +929,11 @@ ${customMessage}`;
                         renderQuestionStep();
                     }
                 });
+
+                grid.appendChild(card);
             });
+
+            quizBody.replaceChildren(grid);
         }
 
         function renderResultStep() {
