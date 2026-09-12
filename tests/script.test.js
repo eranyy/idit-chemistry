@@ -118,11 +118,70 @@ describe('script.js basic functionality', () => {
         expect(phoneInput.value.replace(/[^0-9]/g, '').length).toBeGreaterThanOrEqual(9);
     });
 
-    test('updates opening status badge correctly based on time and day', () => {
-        eval(scriptContent);
-        document.dispatchEvent(new Event('DOMContentLoaded'));
-        const statusBadge = document.getElementById('openingStatus');
-        expect(statusBadge).not.toBeNull();
-        expect(statusBadge.classList.contains('open') || statusBadge.classList.contains('closed')).toBe(true);
+    describe('checkStatus boundary conditions', () => {
+        beforeEach(() => {
+            jest.useFakeTimers();
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+        });
+
+        // Sunday - Thursday (Normal days): 08:00 to 20:00
+        test.each([
+            ['Sunday 07:59', new Date('2023-10-15T07:59:00'), 'closed'],
+            ['Sunday 08:00', new Date('2023-10-15T08:00:00'), 'open'],
+            ['Thursday 19:59', new Date('2023-10-19T19:59:00'), 'open'],
+            ['Thursday 20:00', new Date('2023-10-19T20:00:00'), 'closed']
+        ])('sets status to %s on %s', (desc, time, expectedStatus) => {
+            jest.setSystemTime(time);
+            eval(scriptContent);
+            document.dispatchEvent(new Event('DOMContentLoaded'));
+            const statusBadge = document.getElementById('openingStatus');
+            expect(statusBadge.classList.contains(expectedStatus)).toBe(true);
+            expect(statusBadge.classList.contains(expectedStatus === 'open' ? 'closed' : 'open')).toBe(false);
+        });
+
+        // Friday Summer (DST): 08:00 to 17:00
+        test.each([
+            ['Summer Friday 07:59', new Date('2023-08-11T07:59:00'), 'closed'],
+            ['Summer Friday 08:00', new Date('2023-08-11T08:00:00'), 'open'],
+            ['Summer Friday 16:59', new Date('2023-08-11T16:59:00'), 'open'],
+            ['Summer Friday 17:00', new Date('2023-08-11T17:00:00'), 'closed']
+        ])('sets status to %s on %s in summer', (desc, time, expectedStatus) => {
+            jest.setSystemTime(time);
+            eval(scriptContent);
+            document.dispatchEvent(new Event('DOMContentLoaded'));
+            const statusBadge = document.getElementById('openingStatus');
+            expect(statusBadge.classList.contains(expectedStatus)).toBe(true);
+        });
+
+        // Friday Winter (Non-DST): 08:00 to 15:00
+        test.each([
+            ['Winter Friday 07:59', new Date('2023-01-13T07:59:00'), 'closed'],
+            ['Winter Friday 08:00', new Date('2023-01-13T08:00:00'), 'open'],
+            ['Winter Friday 14:59', new Date('2023-01-13T14:59:00'), 'open'],
+            ['Winter Friday 15:00', new Date('2023-01-13T15:00:00'), 'closed']
+        ])('sets status to %s on %s in winter', (desc, time, expectedStatus) => {
+            jest.setSystemTime(time);
+            eval(scriptContent);
+            document.dispatchEvent(new Event('DOMContentLoaded'));
+            const statusBadge = document.getElementById('openingStatus');
+            expect(statusBadge.classList.contains(expectedStatus)).toBe(true);
+        });
+
+        // Saturday (Evening): 18:00 to 21:00
+        test.each([
+            ['Saturday 17:59', new Date('2023-10-21T17:59:00'), 'closed'],
+            ['Saturday 18:00', new Date('2023-10-21T18:00:00'), 'open'],
+            ['Saturday 20:59', new Date('2023-10-21T20:59:00'), 'open'],
+            ['Saturday 21:00', new Date('2023-10-21T21:00:00'), 'closed']
+        ])('sets status to %s on %s', (desc, time, expectedStatus) => {
+            jest.setSystemTime(time);
+            eval(scriptContent);
+            document.dispatchEvent(new Event('DOMContentLoaded'));
+            const statusBadge = document.getElementById('openingStatus');
+            expect(statusBadge.classList.contains(expectedStatus)).toBe(true);
+        });
     });
 });
