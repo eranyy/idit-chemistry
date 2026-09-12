@@ -27,975 +27,1010 @@ function sendWeb3FormEmail({ accessKey, subject, fromName, name, email, message,
     }).catch(err => console.error(`${errorTag} contact dispatch error:`, err));
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    
+
+function initHeaderScroll() {
     // 1. Header scroll styling
-    const header = document.getElementById('header');
-    let isTicking = false;
-    if (header) {
-        window.addEventListener('scroll', () => {
-            if (!isTicking) {
-                window.requestAnimationFrame(() => {
-                    if (window.scrollY > 50) {
-                        header.classList.add('scrolled');
-                    } else {
-                        header.classList.remove('scrolled');
-                    }
-                    isTicking = false;
-                });
-                isTicking = true;
-            }
-        }, { passive: true });
-    }
+        const header = document.getElementById('header');
+        let isTicking = false;
+        if (header) {
+            window.addEventListener('scroll', () => {
+                if (!isTicking) {
+                    window.requestAnimationFrame(() => {
+                        if (window.scrollY > 50) {
+                            header.classList.add('scrolled');
+                        } else {
+                            header.classList.remove('scrolled');
+                        }
+                        isTicking = false;
+                    });
+                    isTicking = true;
+                }
+            }, { passive: true });
+        }
+}
 
+function initFooterYear() {
     // Set dynamic year in footer
-    const currentYearSpan = document.getElementById('currentYear');
-    if (currentYearSpan) {
-        currentYearSpan.textContent = new Date().getFullYear();
-    }
+        const currentYearSpan = document.getElementById('currentYear');
+        if (currentYearSpan) {
+            currentYearSpan.textContent = new Date().getFullYear();
+        }
+}
 
+function initMobileMenu() {
     // 2. Mobile Menu Toggle
-    const menuToggle = document.getElementById('menuToggle');
-    const navMenu = document.getElementById('navMenu');
-    
-    if (menuToggle && navMenu) {
-        menuToggle.addEventListener('click', () => {
-            const isActive = navMenu.classList.toggle('active');
-            menuToggle.setAttribute('aria-expanded', isActive ? 'true' : 'false');
-        });
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
 
-        // Close menu when clicking on nav link
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                navMenu.classList.remove('active');
-                menuToggle.setAttribute('aria-expanded', 'false');
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                const isActive = navMenu.classList.toggle('active');
+                menuToggle.setAttribute('aria-expanded', isActive ? 'true' : 'false');
             });
-        });
-    }
-
-    // Cached DOM elements & formatters for status check
-    let statusBadgeEl = null;
-    let statusTextEl = null;
-    let hoursTableRows = null;
-    let currentDayRow = null;
-    let jlmFormatter = null;
-    let utcFormatter = null;
-
-    // 3. Dynamic Opening Status
-    function checkStatus() {
-        const now = new Date();
-        const day = now.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
-        const currentHour = now.getHours();
-        const currentMin = now.getMinutes();
-        const currentTime = currentHour * 60 + currentMin; // minutes from midnight
-        
-        let isOpen = false;
-        
-        // Helper to check if Israel is currently in Daylight Saving Time (UTC+3)
-        function isIsraelDST() {
-            try {
-                if (!jlmFormatter) {
-                    jlmFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hourCycle: 'h23' });
-                }
-                if (!utcFormatter) {
-                    utcFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: 'numeric', hourCycle: 'h23' });
-                }
-                const now = new Date();
-                const jlmHour = parseInt(jlmFormatter.format(now), 10);
-                const utcHour = parseInt(utcFormatter.format(now), 10);
-                return ((jlmHour - utcHour + 24) % 24) === 3;
-            } catch (e) {
-                const month = new Date().getMonth() + 1;
-                return month >= 4 && month <= 10;
-            }
-        }
-        
-        // Sunday (0) to Thursday (4) from 08:00 to 20:00
-        if (day >= 0 && day <= 4) {
-            const openTime = 8 * 60; // 08:00
-            const closeTime = 20 * 60; // 20:00
-            if (currentTime >= openTime && currentTime < closeTime) {
-                isOpen = true;
-            }
-        } 
-        // Friday (5) from 08:00 to 17:00 (Summer) or 15:00 (Winter)
-        else if (day === 5) {
-            const openTime = 8 * 60; // 08:00
-            const closeHour = isIsraelDST() ? 17 : 15;
-            const closeTime = closeHour * 60;
-            if (currentTime >= openTime && currentTime < closeTime) {
-                isOpen = true;
-            }
-        }
-        // Saturday (6) from 18:00 to 21:00
-        else if (day === 6) {
-            const openTime = 18 * 60; // 18:00
-            const closeTime = 21 * 60; // 21:00
-            if (currentTime >= openTime && currentTime < closeTime) {
-                isOpen = true;
-            }
-        }
-        
-        // Lazy DOM caching for status badge
-        if (!statusBadgeEl) {
-            statusBadgeEl = document.getElementById('openingStatus');
-            if (statusBadgeEl) {
-                statusTextEl = statusBadgeEl.querySelector('.status-text');
-            }
-        }
-
-        if (statusBadgeEl) {
-            const isCurrentlyOpen = statusBadgeEl.classList.contains('open');
-            if (isOpen && !isCurrentlyOpen) {
-                statusBadgeEl.className = 'status-badge open';
-                if (statusTextEl) statusTextEl.innerText = 'פתוח כעת – מוזמנים להתקשר!';
-            } else if (!isOpen && (isCurrentlyOpen || !statusBadgeEl.classList.contains('closed'))) {
-                statusBadgeEl.className = 'status-badge closed';
-                if (statusTextEl) statusTextEl.innerText = 'סגור כעת – השאירו פרטים ונחזור אליכם';
-            }
-        }
-        
-        // Highlight current day in table using cached rows
-        if (!hoursTableRows) {
-            hoursTableRows = Array.from(document.querySelectorAll('#hoursTable tr[data-day]'));
-        }
-        const targetRow = hoursTableRows.find(r => parseInt(r.getAttribute('data-day'), 10) === day);
-        if (currentDayRow !== targetRow) {
-            if (currentDayRow) currentDayRow.classList.remove('current-day');
-            if (targetRow) targetRow.classList.add('current-day');
-            currentDayRow = targetRow;
-        }
-    }
     
-    checkStatus();
-    // Refresh status check every 30 seconds
-    setInterval(checkStatus, 30000);
-
-    // 4. Learning Tracks Interactive Tab Filtering
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const trackCards = document.querySelectorAll('.track-card');
-    
-    if (tabBtns.length > 0 && trackCards.length > 0) {
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Remove active class from all buttons
-                tabBtns.forEach(b => b.classList.remove('active'));
-                // Add active class to clicked button
-                btn.classList.add('active');
-                
-                const target = btn.getAttribute('data-target');
-                
-                trackCards.forEach(card => {
-                    const category = card.getAttribute('data-category');
-                    if (target === 'all' || category === target) {
-                        card.style.display = 'flex';
-                        // Trigger fade in animation
-                        card.style.opacity = '0';
-                        setTimeout(() => {
-                            card.style.opacity = '1';
-                            card.style.transition = 'opacity 0.4s ease';
-                        }, 50);
-                    } else {
-                        card.style.display = 'none';
-                    }
+            // Close menu when clicking on nav link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                    menuToggle.setAttribute('aria-expanded', 'false');
                 });
             });
-        });
-    }
+        }
+}
 
+function initDynamicOpeningStatus() {
+    // Cached DOM elements & formatters for status check
+        let statusBadgeEl = null;
+        let statusTextEl = null;
+        let hoursTableRows = null;
+        let currentDayRow = null;
+        let jlmFormatter = null;
+        let utcFormatter = null;
+
+        // 3. Dynamic Opening Status
+        function checkStatus() {
+            const now = new Date();
+            const day = now.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+            const currentHour = now.getHours();
+            const currentMin = now.getMinutes();
+            const currentTime = currentHour * 60 + currentMin; // minutes from midnight
+
+            let isOpen = false;
+
+            // Helper to check if Israel is currently in Daylight Saving Time (UTC+3)
+            function isIsraelDST() {
+                try {
+                    if (!jlmFormatter) {
+                        jlmFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hourCycle: 'h23' });
+                    }
+                    if (!utcFormatter) {
+                        utcFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: 'numeric', hourCycle: 'h23' });
+                    }
+                    const now = new Date();
+                    const jlmHour = parseInt(jlmFormatter.format(now), 10);
+                    const utcHour = parseInt(utcFormatter.format(now), 10);
+                    return ((jlmHour - utcHour + 24) % 24) === 3;
+                } catch (e) {
+                    const month = new Date().getMonth() + 1;
+                    return month >= 4 && month <= 10;
+                }
+            }
+
+            // Sunday (0) to Thursday (4) from 08:00 to 20:00
+            if (day >= 0 && day <= 4) {
+                const openTime = 8 * 60; // 08:00
+                const closeTime = 20 * 60; // 20:00
+                if (currentTime >= openTime && currentTime < closeTime) {
+                    isOpen = true;
+                }
+            }
+            // Friday (5) from 08:00 to 17:00 (Summer) or 15:00 (Winter)
+            else if (day === 5) {
+                const openTime = 8 * 60; // 08:00
+                const closeHour = isIsraelDST() ? 17 : 15;
+                const closeTime = closeHour * 60;
+                if (currentTime >= openTime && currentTime < closeTime) {
+                    isOpen = true;
+                }
+            }
+            // Saturday (6) from 18:00 to 21:00
+            else if (day === 6) {
+                const openTime = 18 * 60; // 18:00
+                const closeTime = 21 * 60; // 21:00
+                if (currentTime >= openTime && currentTime < closeTime) {
+                    isOpen = true;
+                }
+            }
+
+            // Lazy DOM caching for status badge
+            if (!statusBadgeEl) {
+                statusBadgeEl = document.getElementById('openingStatus');
+                if (statusBadgeEl) {
+                    statusTextEl = statusBadgeEl.querySelector('.status-text');
+                }
+            }
+
+            if (statusBadgeEl) {
+                const isCurrentlyOpen = statusBadgeEl.classList.contains('open');
+                if (isOpen && !isCurrentlyOpen) {
+                    statusBadgeEl.className = 'status-badge open';
+                    if (statusTextEl) statusTextEl.innerText = 'פתוח כעת – מוזמנים להתקשר!';
+                } else if (!isOpen && (isCurrentlyOpen || !statusBadgeEl.classList.contains('closed'))) {
+                    statusBadgeEl.className = 'status-badge closed';
+                    if (statusTextEl) statusTextEl.innerText = 'סגור כעת – השאירו פרטים ונחזור אליכם';
+                }
+            }
+
+            // Highlight current day in table using cached rows
+            if (!hoursTableRows) {
+                hoursTableRows = Array.from(document.querySelectorAll('#hoursTable tr[data-day]'));
+            }
+            const targetRow = hoursTableRows.find(r => parseInt(r.getAttribute('data-day'), 10) === day);
+            if (currentDayRow !== targetRow) {
+                if (currentDayRow) currentDayRow.classList.remove('current-day');
+                if (targetRow) targetRow.classList.add('current-day');
+                currentDayRow = targetRow;
+            }
+        }
+        
+        checkStatus();
+        // Refresh status check every 30 seconds
+        setInterval(checkStatus, 30000);
+}
+
+function initLearningTracksTabs() {
+    // 4. Learning Tracks Interactive Tab Filtering
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const trackCards = document.querySelectorAll('.track-card');
+
+        if (tabBtns.length > 0 && trackCards.length > 0) {
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+
+                    const target = btn.getAttribute('data-target');
+
+                    trackCards.forEach(card => {
+                        const category = card.getAttribute('data-category');
+                        if (target === 'all' || category === target) {
+                            card.style.display = 'flex';
+                            // Trigger fade in animation
+                            card.style.opacity = '0';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transition = 'opacity 0.4s ease';
+                            }, 50);
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
+}
+
+function initContactForm() {
     // 5. Contact Form Validation and Auto WhatsApp Direct Funnel
-    const contactForm = document.getElementById('contactForm');
-    const formFeedback = document.getElementById('formFeedback');
+        const contactForm = document.getElementById('contactForm');
+        const formFeedback = document.getElementById('formFeedback');
+
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const nameInput = document.getElementById('nameInput');
+                const phoneInput = document.getElementById('phoneInput');
+                const levelInput = document.getElementById('levelInput');
+                const formatInput = document.getElementById('formatInput');
+                const messageInput = document.getElementById('messageInput');
+
+                let isValid = true;
+
+                // Clear previous validation styling
+                [nameInput, phoneInput].forEach(input => {
+                    input.style.borderColor = '#CBD5E1';
+                    input.style.boxShadow = 'none';
+                });
+
+                // Validate Name
+                if (!nameInput.value.trim()) {
+                    nameInput.style.borderColor = '#E02424';
+                    nameInput.style.boxShadow = '0 0 0 3px rgba(224, 36, 36, 0.15)';
+                    isValid = false;
+                }
+
+                // Validate Phone (simple check: must have at least 9 characters)
+                const cleanPhone = phoneInput.value.replace(/[^0-9]/g, '');
+                if (cleanPhone.length < 9) {
+                    phoneInput.style.borderColor = '#E02424';
+                    phoneInput.style.boxShadow = '0 0 0 3px rgba(224, 36, 36, 0.15)';
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    // Map level values to readable text
+                    let levelText = '';
+                    switch (levelInput.value) {
+                        case 'middle': levelText = "חטיבת ביניים (ז'-ט')"; break;
+                        case 'high-4': levelText = 'תיכון - 4 יח\' בגרות'; break;
+                        case 'high-5': levelText = 'תיכון - 5 יח\' בגרות'; break;
+                        case 'academic': levelText = 'אקדמיה / מכינה'; break;
+                        case 'other': levelText = 'אחר'; break;
+                        default: levelText = 'לא נבחר';
+                    }
+
+                    // Map format values to readable text
+                    let formatText = '';
+                    switch (formatInput.value) {
+                        case 'ramat-gan': formatText = 'פרונטלי ברמת גן'; break;
+                        case 'online': formatText = 'אונליין (Zoom/Teams)'; break;
+                        default: formatText = 'לא משנה / גמיש';
+                    }
+
+                    const customMessage = messageInput.value.trim() ? messageInput.value.trim() : 'אין הערות נוספות';
+
+                    // Prepare WhatsApp message
+                    const whatsappText = `שלום עידית, שלחתי פנייה דרך האתר:
+    ✍️ *שם מלא:* ${nameInput.value.trim()}
+    📞 *טלפון:* ${phoneInput.value.trim()}
+    🎓 *רמת לימודים:* ${levelText}
+    🏠 *פורמט מועדף:* ${formatText}
+    💬 *הודעה:* ${customMessage}`;
+
+                    // URL Encode
+                    const encodedText = encodeURIComponent(whatsappText);
+                    const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
+
+                    // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API in background
+                    const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
+                    const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
+
+                    const emailSubject = `פנייה חדשה באתר מורה לכימיה - ${nameInput.value.trim()}`;
+                    const emailBody = `פנייה חדשה התקבלה באתר:
+    שם מלא: ${nameInput.value.trim()}
+    טלפון: ${phoneInput.value.trim()}
+    רמת לימודים: ${levelText}
+    פורמט מועדף: ${formatText}
     
-    if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const nameInput = document.getElementById('nameInput');
-            const phoneInput = document.getElementById('phoneInput');
-            const levelInput = document.getElementById('levelInput');
-            const formatInput = document.getElementById('formatInput');
-            const messageInput = document.getElementById('messageInput');
-            
-            let isValid = true;
-            
-            // Clear previous validation styling
-            [nameInput, phoneInput].forEach(input => {
-                input.style.borderColor = '#CBD5E1';
-                input.style.boxShadow = 'none';
+    תוכן ההודעה:
+    ${customMessage}`;
+
+                    const emailParams = {
+                        subject: emailSubject,
+                        fromName: "אתר עידית כימיה - פניות",
+                        name: nameInput.value.trim(),
+                        email: "no-reply@idit-chemistry.co.il",
+                        message: emailBody
+                    };
+
+                    // Dispatch to Admin & Idit
+                    sendWeb3FormEmail({ ...emailParams, accessKey: adminKey, errorTag: "Admin" });
+                    sendWeb3FormEmail({ ...emailParams, accessKey: iditKey, errorTag: "Idit" });
+
+                    // Hide Form & Show Success Message
+                    contactForm.style.display = 'none';
+                    formFeedback.style.display = 'block';
+
+                    // Open WhatsApp in a new tab to complete the funnel
+                    setTimeout(() => {
+                        window.open(whatsappURL, '_blank');
+                    }, 1000);
+                }
+            });
+        }
+}
+
+function initLightboxModal() {
+    // 6. Lightbox Modal for Certificates
+        const authCards = document.querySelectorAll('.auth-card');
+        const certModal = document.getElementById('certModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalCaption = document.getElementById('modalCaption');
+        const closeModal = document.getElementById('closeModal');
+
+        if (authCards.length > 0 && certModal && modalImg && modalCaption && closeModal) {
+            authCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const certSrc = card.getAttribute('data-cert');
+                    const captionText = card.getAttribute('data-caption');
+
+                    modalImg.src = certSrc;
+                    modalCaption.innerText = captionText;
+
+                    certModal.style.display = 'block';
+                    certModal.setAttribute('aria-hidden', 'false');
+                    setTimeout(() => {
+                        certModal.classList.add('active');
+                    }, 10);
+                });
             });
             
-            // Validate Name
-            if (!nameInput.value.trim()) {
-                nameInput.style.borderColor = '#E02424';
-                nameInput.style.boxShadow = '0 0 0 3px rgba(224, 36, 36, 0.15)';
-                isValid = false;
-            }
+            const hideModal = () => {
+                certModal.classList.remove('active');
+                certModal.setAttribute('aria-hidden', 'true');
+                setTimeout(() => {
+                    certModal.style.display = 'none';
+                    modalImg.src = '';
+                    modalCaption.innerText = '';
+                }, 300);
+            };
             
-            // Validate Phone (simple check: must have at least 9 characters)
-            const cleanPhone = phoneInput.value.replace(/[^0-9]/g, '');
-            if (cleanPhone.length < 9) {
-                phoneInput.style.borderColor = '#E02424';
-                phoneInput.style.boxShadow = '0 0 0 3px rgba(224, 36, 36, 0.15)';
-                isValid = false;
-            }
+            closeModal.addEventListener('click', hideModal);
             
-            if (isValid) {
-                // Map level values to readable text
-                let levelText = '';
-                switch (levelInput.value) {
-                    case 'middle': levelText = "חטיבת ביניים (ז'-ט')"; break;
-                    case 'high-4': levelText = 'תיכון - 4 יח\' בגרות'; break;
-                    case 'high-5': levelText = 'תיכון - 5 יח\' בגרות'; break;
-                    case 'academic': levelText = 'אקדמיה / מכינה'; break;
-                    case 'other': levelText = 'אחר'; break;
-                    default: levelText = 'לא נבחר';
+            // Close modal when clicking outside the image
+            certModal.addEventListener('click', (e) => {
+                if (e.target === certModal) {
+                    hideModal();
                 }
-                
-                // Map format values to readable text
-                let formatText = '';
-                switch (formatInput.value) {
-                    case 'ramat-gan': formatText = 'פרונטלי ברמת גן'; break;
-                    case 'online': formatText = 'אונליין (Zoom/Teams)'; break;
-                    default: formatText = 'לא משנה / גמיש';
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && certModal.classList.contains('active')) {
+                    hideModal();
                 }
+            });
+        }
+}
+
+function initInteractiveReviewModal() {
+    // 7. Interactive Review Modal & Star Rating
+        const openReviewBtn = document.getElementById('openReviewBtn');
+        const reviewModal = document.getElementById('reviewModal');
+        const closeReviewModal = document.getElementById('closeReviewModal');
+        const reviewForm = document.getElementById('reviewForm');
+        const stars = document.querySelectorAll('#starRating .star');
+        const ratingInput = document.getElementById('reviewRating');
+
+        if (openReviewBtn && reviewModal && closeReviewModal && reviewForm) {
+            
+            // Open Modal
+            openReviewBtn.addEventListener('click', () => {
+                reviewModal.style.display = 'flex';
+                reviewModal.setAttribute('aria-hidden', 'false');
+                setTimeout(() => {
+                    reviewModal.classList.add('active');
+                }, 10);
+            });
+
+            // Hide Modal function
+            const hideReviewModal = () => {
+                reviewModal.classList.remove('active');
+                reviewModal.setAttribute('aria-hidden', 'true');
+                setTimeout(() => {
+                    reviewModal.style.display = 'none';
+                    reviewForm.reset();
+                    resetStars();
+                }, 300);
+            };
+
+            closeReviewModal.addEventListener('click', hideReviewModal);
+            
+            // Close when clicking outside content
+            reviewModal.addEventListener('click', (e) => {
+                if (e.target === reviewModal) {
+                    hideReviewModal();
+                }
+            });
+
+            // Close with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && reviewModal.classList.contains('active')) {
+                    hideReviewModal();
+                }
+            });
+
+            // Star Rating Selection
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const val = star.getAttribute('data-value');
+                    ratingInput.value = val;
+
+                    // Highlight clicked star and all lower value stars
+                    const targetVal = parseInt(val, 10);
+                    stars.forEach(s => {
+                        if (parseInt(s.getAttribute('data-value'), 10) <= targetVal) {
+                            s.classList.add('selected');
+                        } else {
+                            s.classList.remove('selected');
+                        }
+                    });
+                });
+            });
+
+            const resetStars = () => {
+                stars.forEach(s => {
+                    s.classList.remove('selected');
+                });
+                ratingInput.value = '5';
+            };
+
+            // Handle Submit
+            reviewForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('reviewName').value.trim();
+                const role = document.getElementById('reviewRole').value.trim();
+                const rating = ratingInput.value;
+                const text = document.getElementById('reviewText').value.trim();
                 
-                const customMessage = messageInput.value.trim() ? messageInput.value.trim() : 'אין הערות נוספות';
+                // Format star string
+                const starString = '★'.repeat(rating) + '☆'.repeat(5 - rating);
                 
-                // Prepare WhatsApp message
-                const whatsappText = `שלום עידית, שלחתי פנייה דרך האתר:
-✍️ *שם מלא:* ${nameInput.value.trim()}
-📞 *טלפון:* ${phoneInput.value.trim()}
-🎓 *רמת לימודים:* ${levelText}
-🏠 *פורמט מועדף:* ${formatText}
-💬 *הודעה:* ${customMessage}`;
+                // Prepare Whatsapp Message
+                const whatsappMsg = `היי עידית, שלחתי המלצה חדשה עבור האתר שלך:
+    ✍️ *שם הממליץ:* ${name}
+    🎓 *רמת לימוד / מוסד:* ${role}
+    ⭐ *דירוג:* ${starString} (${rating}/5)
+    💬 *המלצה:* ${text}`;
                 
-                // URL Encode
-                const encodedText = encodeURIComponent(whatsappText);
+                const encodedText = encodeURIComponent(whatsappMsg);
                 const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
                 
-                // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API in background
+                // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API
                 const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
                 const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
                 
-                const emailSubject = `פנייה חדשה באתר מורה לכימיה - ${nameInput.value.trim()}`;
-                const emailBody = `פנייה חדשה התקבלה באתר:
-שם מלא: ${nameInput.value.trim()}
-טלפון: ${phoneInput.value.trim()}
-רמת לימודים: ${levelText}
-פורמט מועדף: ${formatText}
+                const emailSubject = `המלצה חדשה באתר מורה לכימיה - ${name}`;
+                const emailBody = `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`;
 
-תוכן ההודעה:
-${customMessage}`;
-
-                const emailParams = {
+                const reviewEmailParams = {
                     subject: emailSubject,
-                    fromName: "אתר עידית כימיה - פניות",
-                    name: nameInput.value.trim(),
+                    fromName: "אתר עידית כימיה - המלצות",
+                    name: name,
                     email: "no-reply@idit-chemistry.co.il",
                     message: emailBody
                 };
 
                 // Dispatch to Admin & Idit
-                sendWeb3FormEmail({ ...emailParams, accessKey: adminKey, errorTag: "Admin" });
-                sendWeb3FormEmail({ ...emailParams, accessKey: iditKey, errorTag: "Idit" });
+                sendWeb3FormEmail({ ...reviewEmailParams, accessKey: adminKey, errorTag: "Admin review" });
+                sendWeb3FormEmail({ ...reviewEmailParams, accessKey: iditKey, errorTag: "Idit review" });
                 
-                // Hide Form & Show Success Message
-                contactForm.style.display = 'none';
-                formFeedback.style.display = 'block';
+                hideReviewModal();
                 
-                // Open WhatsApp in a new tab to complete the funnel
+                // Redirect to WhatsApp
                 setTimeout(() => {
                     window.open(whatsappURL, '_blank');
-                }, 1000);
-            }
-        });
-    }
-
-    // 6. Lightbox Modal for Certificates
-    const authCards = document.querySelectorAll('.auth-card');
-    const certModal = document.getElementById('certModal');
-    const modalImg = document.getElementById('modalImg');
-    const modalCaption = document.getElementById('modalCaption');
-    const closeModal = document.getElementById('closeModal');
-    
-    if (authCards.length > 0 && certModal && modalImg && modalCaption && closeModal) {
-        authCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const certSrc = card.getAttribute('data-cert');
-                const captionText = card.getAttribute('data-caption');
-                
-                modalImg.src = certSrc;
-                modalCaption.innerText = captionText;
-                
-                certModal.style.display = 'block';
-                certModal.setAttribute('aria-hidden', 'false');
-                setTimeout(() => {
-                    certModal.classList.add('active');
-                }, 10);
+                }, 500);
             });
-        });
-        
-        const hideModal = () => {
-            certModal.classList.remove('active');
-            certModal.setAttribute('aria-hidden', 'true');
-            setTimeout(() => {
-                certModal.style.display = 'none';
-                modalImg.src = '';
-                modalCaption.innerText = '';
-            }, 300);
-        };
-        
-        closeModal.addEventListener('click', hideModal);
-        
-        // Close modal when clicking outside the image
-        certModal.addEventListener('click', (e) => {
-            if (e.target === certModal) {
-                hideModal();
-            }
-        });
-        
-        // Close modal with Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && certModal.classList.contains('active')) {
-                hideModal();
-            }
-        });
-    }
+        }
+}
 
-    // 7. Interactive Review Modal & Star Rating
-    const openReviewBtn = document.getElementById('openReviewBtn');
-    const reviewModal = document.getElementById('reviewModal');
-    const closeReviewModal = document.getElementById('closeReviewModal');
-    const reviewForm = document.getElementById('reviewForm');
-    const stars = document.querySelectorAll('#starRating .star');
-    const ratingInput = document.getElementById('reviewRating');
-    
-    if (openReviewBtn && reviewModal && closeReviewModal && reviewForm) {
-        
-        // Open Modal
-        openReviewBtn.addEventListener('click', () => {
-            reviewModal.style.display = 'flex';
-            reviewModal.setAttribute('aria-hidden', 'false');
-            setTimeout(() => {
-                reviewModal.classList.add('active');
-            }, 10);
-        });
-        
-        // Hide Modal function
-        const hideReviewModal = () => {
-            reviewModal.classList.remove('active');
-            reviewModal.setAttribute('aria-hidden', 'true');
-            setTimeout(() => {
-                reviewModal.style.display = 'none';
-                reviewForm.reset();
-                resetStars();
-            }, 300);
-        };
-        
-        closeReviewModal.addEventListener('click', hideReviewModal);
-        
-        // Close when clicking outside content
-        reviewModal.addEventListener('click', (e) => {
-            if (e.target === reviewModal) {
-                hideReviewModal();
-            }
-        });
-        
-        // Close with Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && reviewModal.classList.contains('active')) {
-                hideReviewModal();
-            }
-        });
-        
-        // Star Rating Selection
-        stars.forEach(star => {
-            star.addEventListener('click', () => {
-                const val = star.getAttribute('data-value');
-                ratingInput.value = val;
-                
-                // Highlight clicked star and all lower value stars
-                const targetVal = parseInt(val, 10);
-                stars.forEach(s => {
-                    if (parseInt(s.getAttribute('data-value'), 10) <= targetVal) {
-                        s.classList.add('selected');
-                    } else {
-                        s.classList.remove('selected');
-                    }
-                });
-            });
-        });
-        
-        const resetStars = () => {
-            stars.forEach(s => {
-                s.classList.remove('selected');
-            });
-            ratingInput.value = '5';
-        };
-        
-        // Handle Submit
-        reviewForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('reviewName').value.trim();
-            const role = document.getElementById('reviewRole').value.trim();
-            const rating = ratingInput.value;
-            const text = document.getElementById('reviewText').value.trim();
-            
-            // Format star string
-            const starString = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-            
-            // Prepare Whatsapp Message
-            const whatsappMsg = `היי עידית, שלחתי המלצה חדשה עבור האתר שלך:
-✍️ *שם הממליץ:* ${name}
-🎓 *רמת לימוד / מוסד:* ${role}
-⭐ *דירוג:* ${starString} (${rating}/5)
-💬 *המלצה:* ${text}`;
-            
-            const encodedText = encodeURIComponent(whatsappMsg);
-            const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
-            
-            // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API
-            const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-            const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
-            
-            const emailSubject = `המלצה חדשה באתר מורה לכימיה - ${name}`;
-            const emailBody = `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`;
-
-            const reviewEmailParams = {
-                subject: emailSubject,
-                fromName: "אתר עידית כימיה - המלצות",
-                name: name,
-                email: "no-reply@idit-chemistry.co.il",
-                message: emailBody
-            };
-
-            // Dispatch to Admin & Idit
-            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: adminKey, errorTag: "Admin review" });
-            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: iditKey, errorTag: "Idit review" });
-            
-            hideReviewModal();
-            
-            // Redirect to WhatsApp
-            setTimeout(() => {
-                window.open(whatsappURL, '_blank');
-            }, 500);
-        });
-    }
-
+function initAccessibilityPanel() {
     // 8. Accessibility floating panel interactions & state persistence
-    const accToggle = document.getElementById('accessibilityToggle');
-    const accPanel = document.getElementById('accessibilityPanel');
-    const accClose = document.getElementById('accessibilityClose');
-    
-    const btnEnlargeText = document.getElementById('btnEnlargeText');
-    const btnContrast = document.getElementById('btnContrast');
-    const btnMonochrome = document.getElementById('btnMonochrome');
-    const btnLinks = document.getElementById('btnLinks');
-    const btnFont = document.getElementById('btnFont');
-    const btnReset = document.getElementById('btnReset');
-    
-    if (accToggle && accPanel && accClose) {
-        // Toggle panel
-        accToggle.addEventListener('click', () => {
-            const isExpanded = accPanel.classList.contains('active');
-            if (isExpanded) {
+        const accToggle = document.getElementById('accessibilityToggle');
+        const accPanel = document.getElementById('accessibilityPanel');
+        const accClose = document.getElementById('accessibilityClose');
+        
+        const btnEnlargeText = document.getElementById('btnEnlargeText');
+        const btnContrast = document.getElementById('btnContrast');
+        const btnMonochrome = document.getElementById('btnMonochrome');
+        const btnLinks = document.getElementById('btnLinks');
+        const btnFont = document.getElementById('btnFont');
+        const btnReset = document.getElementById('btnReset');
+        
+        if (accToggle && accPanel && accClose) {
+            // Toggle panel
+            accToggle.addEventListener('click', () => {
+                const isExpanded = accPanel.classList.contains('active');
+                if (isExpanded) {
+                    accPanel.classList.remove('active');
+                    accPanel.setAttribute('aria-hidden', 'true');
+                } else {
+                    accPanel.classList.add('active');
+                    accPanel.setAttribute('aria-hidden', 'false');
+                }
+            });
+            
+            accClose.addEventListener('click', () => {
                 accPanel.classList.remove('active');
                 accPanel.setAttribute('aria-hidden', 'true');
-            } else {
-                accPanel.classList.add('active');
-                accPanel.setAttribute('aria-hidden', 'false');
-            }
-        });
-        
-        accClose.addEventListener('click', () => {
-            accPanel.classList.remove('active');
-            accPanel.setAttribute('aria-hidden', 'true');
-        });
+            });
 
-        // Close on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && accPanel.classList.contains('active')) {
-                accPanel.classList.remove('active');
-                accPanel.setAttribute('aria-hidden', 'true');
-            }
-        });
-        
-        // State variables
-        let accSettings = {
-            textSize: 'md', // md, lg, xl
-            contrast: false,
-            monochrome: false,
-            links: false,
-            font: false
-        };
-        
-        // Save to localStorage
-        function saveAccSettings() {
-            localStorage.setItem('accSettings', JSON.stringify(accSettings));
-        }
-        
-        // Apply settings
-        function applyAccSettings() {
-            const body = document.body;
-            const html = document.documentElement;
-            const btnLabel = btnEnlargeText ? btnEnlargeText.querySelector('.btn-label') : null;
+            // Close on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && accPanel.classList.contains('active')) {
+                    accPanel.classList.remove('active');
+                    accPanel.setAttribute('aria-hidden', 'true');
+                }
+            });
             
-            // Text size
-            html.classList.remove('acc-text-lg', 'acc-text-xl');
-            if (btnEnlargeText) btnEnlargeText.classList.remove('active');
-            if (accSettings.textSize === 'lg') {
-                html.classList.add('acc-text-lg');
-                if (btnEnlargeText) btnEnlargeText.classList.add('active');
-                if (btnLabel) btnLabel.innerText = 'גופן: גדול';
-            } else if (accSettings.textSize === 'xl') {
-                html.classList.add('acc-text-xl');
-                if (btnEnlargeText) btnEnlargeText.classList.add('active');
-                if (btnLabel) btnLabel.innerText = 'גופן: ענק';
-            } else {
-                if (btnLabel) btnLabel.innerText = 'הגדלת גופן';
-            }
-            
-            // Contrast
-            if (accSettings.contrast) {
-                body.classList.add('acc-contrast');
-                btnContrast.classList.add('active');
-            } else {
-                body.classList.remove('acc-contrast');
-                btnContrast.classList.remove('active');
-            }
-            
-            // Monochrome
-            if (accSettings.monochrome) {
-                html.classList.add('acc-monochrome');
-                btnMonochrome.classList.add('active');
-            } else {
-                html.classList.remove('acc-monochrome');
-                btnMonochrome.classList.remove('active');
-            }
-            
-            // Links
-            if (accSettings.links) {
-                body.classList.add('acc-links');
-                btnLinks.classList.add('active');
-            } else {
-                body.classList.remove('acc-links');
-                btnLinks.classList.remove('active');
-            }
-            
-            // Font
-            if (accSettings.font) {
-                body.classList.add('acc-font');
-                btnFont.classList.add('active');
-            } else {
-                body.classList.remove('acc-font');
-                btnFont.classList.remove('active');
-            }
-        }
-        
-        // Load from localStorage
-        const stored = localStorage.getItem('accSettings');
-        if (stored) {
-            try {
-                accSettings = JSON.parse(stored);
-                applyAccSettings();
-            } catch (e) {
-                console.error("Error parsing accessibility settings", e);
-            }
-        }
-        
-        // Event Listeners for buttons
-        btnEnlargeText.addEventListener('click', () => {
-            if (accSettings.textSize === 'md') {
-                accSettings.textSize = 'lg';
-            } else if (accSettings.textSize === 'lg') {
-                accSettings.textSize = 'xl';
-            } else {
-                accSettings.textSize = 'md';
-            }
-            applyAccSettings();
-            saveAccSettings();
-        });
-        
-        btnContrast.addEventListener('click', () => {
-            accSettings.contrast = !accSettings.contrast;
-            applyAccSettings();
-            saveAccSettings();
-        });
-        
-        btnMonochrome.addEventListener('click', () => {
-            accSettings.monochrome = !accSettings.monochrome;
-            applyAccSettings();
-            saveAccSettings();
-        });
-        
-        btnLinks.addEventListener('click', () => {
-            accSettings.links = !accSettings.links;
-            applyAccSettings();
-            saveAccSettings();
-        });
-        
-        btnFont.addEventListener('click', () => {
-            accSettings.font = !accSettings.font;
-            applyAccSettings();
-            saveAccSettings();
-        });
-        
-        btnReset.addEventListener('click', () => {
-            accSettings = {
-                textSize: 'md',
+            // State variables
+            let accSettings = {
+                textSize: 'md', // md, lg, xl
                 contrast: false,
                 monochrome: false,
                 links: false,
                 font: false
             };
-            applyAccSettings();
-            saveAccSettings();
-        });
-    }
+            
+            // Save to localStorage
+            function saveAccSettings() {
+                localStorage.setItem('accSettings', JSON.stringify(accSettings));
+            }
+            
+            // Apply settings
+            function applyAccSettings() {
+                const body = document.body;
+                const html = document.documentElement;
+                const btnLabel = btnEnlargeText ? btnEnlargeText.querySelector('.btn-label') : null;
 
+                // Text size
+                html.classList.remove('acc-text-lg', 'acc-text-xl');
+                if (btnEnlargeText) btnEnlargeText.classList.remove('active');
+                if (accSettings.textSize === 'lg') {
+                    html.classList.add('acc-text-lg');
+                    if (btnEnlargeText) btnEnlargeText.classList.add('active');
+                    if (btnLabel) btnLabel.innerText = 'גופן: גדול';
+                } else if (accSettings.textSize === 'xl') {
+                    html.classList.add('acc-text-xl');
+                    if (btnEnlargeText) btnEnlargeText.classList.add('active');
+                    if (btnLabel) btnLabel.innerText = 'גופן: ענק';
+                } else {
+                    if (btnLabel) btnLabel.innerText = 'הגדלת גופן';
+                }
+
+                // Contrast
+                if (accSettings.contrast) {
+                    body.classList.add('acc-contrast');
+                    btnContrast.classList.add('active');
+                } else {
+                    body.classList.remove('acc-contrast');
+                    btnContrast.classList.remove('active');
+                }
+
+                // Monochrome
+                if (accSettings.monochrome) {
+                    html.classList.add('acc-monochrome');
+                    btnMonochrome.classList.add('active');
+                } else {
+                    html.classList.remove('acc-monochrome');
+                    btnMonochrome.classList.remove('active');
+                }
+
+                // Links
+                if (accSettings.links) {
+                    body.classList.add('acc-links');
+                    btnLinks.classList.add('active');
+                } else {
+                    body.classList.remove('acc-links');
+                    btnLinks.classList.remove('active');
+                }
+
+                // Font
+                if (accSettings.font) {
+                    body.classList.add('acc-font');
+                    btnFont.classList.add('active');
+                } else {
+                    body.classList.remove('acc-font');
+                    btnFont.classList.remove('active');
+                }
+            }
+            
+            // Load from localStorage
+            const stored = localStorage.getItem('accSettings');
+            if (stored) {
+                try {
+                    accSettings = JSON.parse(stored);
+                    applyAccSettings();
+                } catch (e) {
+                    console.error("Error parsing accessibility settings", e);
+                }
+            }
+            
+            // Event Listeners for buttons
+            btnEnlargeText.addEventListener('click', () => {
+                if (accSettings.textSize === 'md') {
+                    accSettings.textSize = 'lg';
+                } else if (accSettings.textSize === 'lg') {
+                    accSettings.textSize = 'xl';
+                } else {
+                    accSettings.textSize = 'md';
+                }
+                applyAccSettings();
+                saveAccSettings();
+            });
+            
+            btnContrast.addEventListener('click', () => {
+                accSettings.contrast = !accSettings.contrast;
+                applyAccSettings();
+                saveAccSettings();
+            });
+            
+            btnMonochrome.addEventListener('click', () => {
+                accSettings.monochrome = !accSettings.monochrome;
+                applyAccSettings();
+                saveAccSettings();
+            });
+
+            btnLinks.addEventListener('click', () => {
+                accSettings.links = !accSettings.links;
+                applyAccSettings();
+                saveAccSettings();
+            });
+
+            btnFont.addEventListener('click', () => {
+                accSettings.font = !accSettings.font;
+                applyAccSettings();
+                saveAccSettings();
+            });
+
+            btnReset.addEventListener('click', () => {
+                accSettings = {
+                    textSize: 'md',
+                    contrast: false,
+                    monochrome: false,
+                    links: false,
+                    font: false
+                };
+                applyAccSettings();
+                saveAccSettings();
+            });
+        }
+}
+
+function initCookieConsentBanner() {
     // 9. Cookie Consent Banner Logic
-    const cookieBanner = document.getElementById('cookieBanner');
-    const acceptCookiesBtn = document.getElementById('acceptCookiesBtn');
-    
-    if (cookieBanner && acceptCookiesBtn) {
-        // Check if user has already accepted cookies
-        const hasAccepted = localStorage.getItem('cookieConsentAccepted');
-        if (!hasAccepted) {
-            // Show banner after short delay
-            setTimeout(() => {
-                cookieBanner.classList.add('active');
-                cookieBanner.setAttribute('aria-hidden', 'false');
-            }, 1500);
-        }
+        const cookieBanner = document.getElementById('cookieBanner');
+        const acceptCookiesBtn = document.getElementById('acceptCookiesBtn');
         
-        acceptCookiesBtn.addEventListener('click', () => {
-            localStorage.setItem('cookieConsentAccepted', 'true');
-            cookieBanner.classList.remove('active');
-            cookieBanner.setAttribute('aria-hidden', 'true');
-        });
-    }
+        if (cookieBanner && acceptCookiesBtn) {
+            // Check if user has already accepted cookies
+            const hasAccepted = localStorage.getItem('cookieConsentAccepted');
+            if (!hasAccepted) {
+                // Show banner after short delay
+                setTimeout(() => {
+                    cookieBanner.classList.add('active');
+                    cookieBanner.setAttribute('aria-hidden', 'false');
+                }, 1500);
+            }
 
+            acceptCookiesBtn.addEventListener('click', () => {
+                localStorage.setItem('cookieConsentAccepted', 'true');
+                cookieBanner.classList.remove('active');
+                cookieBanner.setAttribute('aria-hidden', 'true');
+            });
+        }
+}
+
+function initQuizEngine() {
     // 10. Interactive Chemistry Readiness Assessment Quiz Engine
-    const quizModal = document.getElementById('quizModal');
-    const openQuizBtn = document.getElementById('openQuizBtn');
-    const floatingQuizBtn = document.getElementById('floatingQuizBtn');
-    const closeQuizModal = document.getElementById('closeQuizModal');
-    const quizHeader = document.getElementById('quizHeader');
-    const quizTitle = document.getElementById('quizTitle');
-    const quizSubtitle = document.getElementById('quizSubtitle');
-    const quizProgressWrap = document.getElementById('quizProgressWrap');
-    const quizProgressBar = document.getElementById('quizProgressBar');
-    const quizBody = document.getElementById('quizBody');
+        const quizModal = document.getElementById('quizModal');
+        const openQuizBtn = document.getElementById('openQuizBtn');
+        const floatingQuizBtn = document.getElementById('floatingQuizBtn');
+        const closeQuizModal = document.getElementById('closeQuizModal');
+        const quizHeader = document.getElementById('quizHeader');
+        const quizTitle = document.getElementById('quizTitle');
+        const quizSubtitle = document.getElementById('quizSubtitle');
+        const quizProgressWrap = document.getElementById('quizProgressWrap');
+        const quizProgressBar = document.getElementById('quizProgressBar');
+        const quizBody = document.getElementById('quizBody');
 
-    if (quizModal && quizBody) {
-        let currentQuizState = {
-            track: '',
-            step: 0,
-            answers: []
-        };
+        if (quizModal && quizBody) {
+            let currentQuizState = {
+                track: '',
+                step: 0,
+                answers: []
+            };
 
-        const tracksData = [
-            {
-                id: 'highschool',
-                icon: '🏫',
-                title: 'תלמיד/ה בתיכון (4 או 5 יח\' לימוד)',
-                desc: 'הכנה לבגרות בכימיה, חיזוק החומר ומעבדות חקר'
-            },
-            {
-                id: 'prep',
-                icon: '🏛️',
-                title: 'תלמיד/ה במכינה אקדמית / מכללה',
-                desc: 'לימוד יסודות הכימיה, סטויכיומטריה והכנה לבחינות'
-            },
-            {
-                id: 'academic',
-                icon: '🔬',
-                title: 'סטודנט/ית באקדמיה (אורגנית / כללית / רפואה)',
-                desc: 'כימיה כללית, אורגנית, ביוכימיה ומנגנוני תגובה'
-            },
-            {
-                id: 'middleschool',
-                icon: '🎓',
-                title: 'חטיבת ביניים (כיתות ז\'-ט\')',
-                desc: 'בניית תשתית מדעית חזקה והבנת יסודות החומר'
-            }
-        ];
-
-        const quizQuestionsMap = {
-            highschool: [
+            const tracksData = [
                 {
-                    q: 'איך את/ה מרגיש/ה עם נושאי הליבה (מולריות, שיווי משקל, חומצות ובסיסים)?',
-                    options: [
-                        { text: 'מבין/ה מצוין, רוצה לשפר ל-90+ בבגרות! 🏆', score: 95, detail: 'רוצה להבטיח 95+ בבגרות' },
-                        { text: 'מבין/ה תאוריה, אבל מתקשה בחישובים ובשאלות בגרות מורכבות 📐', score: 65, detail: 'צריך/ה חיזוק בחישובים ותרגול בגרות' },
-                        { text: 'מרגיש/ה פער גדול וחוסר הבנה של הבסיס 🔴', score: 40, detail: 'זקוק/ה לסגירת פערים מהיסוד' }
-                    ]
+                    id: 'highschool',
+                    icon: '🏫',
+                    title: 'תלמיד/ה בתיכון (4 או 5 יח\' לימוד)',
+                    desc: 'הכנה לבגרות בכימיה, חיזוק החומר ומעבדות חקר'
                 },
                 {
-                    q: 'מתי המבחן / מתכונת / בגרות הקרובה שלך?',
-                    options: [
-                        { text: 'בעוד פחות מ-3 שבועות (צריך/ה מרתון דחוף!) ⚡', score: 10, detail: 'דחיפות גבוהה: מבחן קרוב' },
-                        { text: 'בעוד חודש-חודשיים (רוצה ליווי עקבי) 📅', score: 20, detail: 'ליווי רציף לקראת המבנים' },
-                        { text: 'תחילת שנה / בונה תשתית לקראת י"א-י"ב 🎓', score: 30, detail: 'בניית תשתית מוקדמת' }
-                    ]
+                    id: 'prep',
+                    icon: '🏛️',
+                    title: 'תלמיד/ה במכינה אקדמית / מכללה',
+                    desc: 'לימוד יסודות הכימיה, סטויכיומטריה והכנה לבחינות'
                 },
                 {
-                    q: 'איזה סגנון לימוד הכי עוזר לך להבין חומר מורכב?',
-                    options: [
-                        { text: 'שיעור אונליין מהבית עם לוח דיגיטלי מתקדם 💻', score: 5, detail: 'העדפה: שיעור אונליין' },
-                        { text: 'שיעור פרונטלי פנים-אל-פנים ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
-                    ]
+                    id: 'academic',
+                    icon: '🔬',
+                    title: 'סטודנט/ית באקדמיה (אורגנית / כללית / רפואה)',
+                    desc: 'כימיה כללית, אורגנית, ביוכימיה ומנגנוני תגובה'
+                },
+                {
+                    id: 'middleschool',
+                    icon: '🎓',
+                    title: 'חטיבת ביניים (כיתות ז\'-ט\')',
+                    desc: 'בניית תשתית מדעית חזקה והבנת יסודות החומר'
                 }
-            ],
-            prep: [
-                {
-                    q: 'איזה תחום בכימיה מעכב אותך כרגע במכינה?',
-                    options: [
-                        { text: 'חישובים סטויכיומטריים, ריכוזים ומולים 📐', score: 60, detail: 'מתקשה בחישובים וריכוזים' },
-                        { text: 'מבנה אטומי, קשרים כימיים וכוחות בין-מולקולריים ⚛️', score: 70, detail: 'צריך/ה חיזוק בקשרים ומבנה' },
-                        { text: 'עומס חומר מטורף וקצב מרצה מהיר מדי ⏱️', score: 50, detail: 'עומס חומר וקצב מהיר' }
-                    ]
-                },
-                {
-                    q: 'מהי מטרת העל שלך במכינה?',
-                    options: [
-                        { text: 'קבלת פטור / מעבר בטוח של קורס הכימיה 🎯', score: 20, detail: 'יעד: מעבר בטוח' },
-                        { text: 'ציון 85+ לקבלה לפקולטה מבוקשת (הנדסה / רפואה) 🏆', score: 30, detail: 'יעד: 85+ לקבלה יוקרתית' }
-                    ]
-                },
-                {
-                    q: 'מהו אופן הלימוד המועדף עליך?',
-                    options: [
-                        { text: 'שיעורי אונליין גמישים ב-Zoom 💻', score: 5, detail: 'העדפה: Zoom אונליין' },
-                        { text: 'שיעור פרונטלי ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
-                    ]
-                }
-            ],
-            academic: [
-                {
-                    q: 'איזה קורס אקדמי את/ה לומד/ת כרגע?',
-                    options: [
-                        { text: 'כימיה אורגנית / ביוכימיה / מנגנוני תגובה 🧬', score: 65, detail: 'קורס: כימיה אורגנית' },
-                        { text: 'כימיה כללית / פיזיקלית / יסודות 🧪', score: 75, detail: 'קורס: כימיה כללית' },
-                        { text: 'קורס ייעודי למקצועות הרפואה / סיעוד / הנדסה 🏥', score: 70, detail: 'קורס: כימיה למקצועות הבריאות/הנדסה' }
-                    ]
-                },
-                {
-                    q: 'מהו המכשול המרכזי בלמידה לקראת המבחן?',
-                    options: [
-                        { text: 'הבנת מנגנוני תגובה וסטריאוכימיה באורגנית ⚛️', score: 50, detail: 'אתגר: מנגנונים וסטריאוכימיה' },
-                        { text: 'פתרון מבחנים משנים קודמות ומטלות הגשה 📝', score: 60, detail: 'אתגר: פתרון מבחנים ומטלות' }
-                    ]
-                },
-                {
-                    q: 'מהו פורמט השיעור המבוקש?',
-                    options: [
-                        { text: 'אונליין ב-Zoom עם לוח דיגיטלי מתקדם 💻', score: 5, detail: 'העדפה: אונליין Zoom' },
-                        { text: 'פרונטלי ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
-                    ]
-                }
-            ],
-            middleschool: [
-                {
-                    q: 'מה האתגר המרכזי של התלמיד/ה במדעים וכימיה?',
-                    options: [
-                        { text: 'בניית בסיס חזק והבנת המושגים הראשוניים 🧪', score: 80, detail: 'בניית תשתית מדעית' },
-                        { text: 'שיפור הציונים לקראת תיכון ומגמות מדעיות 📈', score: 85, detail: 'שיפור ציונים למגמות' }
-                    ]
-                },
-                {
-                    q: 'מהו המועד המועדף להתחלת הלימוד?',
-                    options: [
-                        { text: 'מיידי - שבועות קרובים ⚡', score: 10, detail: 'התחלה מיידית' },
-                        { text: 'בניית תוכנית תקופתית 📅', score: 15, detail: 'תוכנית עבודה תקופתית' }
-                    ]
-                },
-                {
-                    q: 'איזה פורמט עדיף לילד/ה?',
-                    options: [
-                        { text: 'שיעור אונליין חווייתי 💻', score: 5, detail: 'העדפה: אונליין' },
-                        { text: 'שיעור פרונטלי ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
-                    ]
-                }
-            ]
-        };
+            ];
 
-        function openQuiz() {
-            quizModal.classList.add('active');
-            quizModal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-            resetQuiz();
-        }
-
-        function closeQuiz() {
-            quizModal.classList.remove('active');
-            quizModal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-        }
-
-        function resetQuiz() {
-            currentQuizState = { track: '', step: 0, answers: [] };
-            quizTitle.textContent = 'בחרו את מסלול הלימוד שלכם';
-            quizSubtitle.textContent = 'אבחון קצר של 45 שניות לקבלת תובנה והמלצת לימוד אישית מעידית';
-            quizProgressWrap.style.display = 'none';
-            renderTracksStep();
-        }
-
-        function renderTracksStep() {
-            const grid = document.createElement('div');
-            grid.className = 'quiz-options-grid';
-
-            tracksData.forEach(t => {
-                const card = document.createElement('div');
-                card.className = 'quiz-option-card';
-                card.setAttribute('data-track', t.id);
-
-                const icon = document.createElement('div');
-                icon.className = 'quiz-option-icon';
-                icon.textContent = t.icon;
-
-                const textWrap = document.createElement('div');
-                textWrap.className = 'quiz-option-text';
-
-                const h4 = document.createElement('h4');
-                h4.textContent = t.title;
-
-                const p = document.createElement('p');
-                p.textContent = t.desc;
-
-                textWrap.appendChild(h4);
-                textWrap.appendChild(p);
-                card.appendChild(icon);
-                card.appendChild(textWrap);
-
-                card.addEventListener('click', () => {
-                    currentQuizState.track = t.id;
-                    currentQuizState.step = 1;
-                    renderQuestionStep();
-                });
-
-                grid.appendChild(card);
-            });
-
-            quizBody.replaceChildren(grid);
-        }
-
-        function renderQuestionStep() {
-            const questions = quizQuestionsMap[currentQuizState.track] || quizQuestionsMap.highschool;
-            const currentQ = questions[currentQuizState.step - 1];
-
-            if (!currentQ) {
-                renderResultStep();
-                return;
-            }
-
-            quizProgressWrap.style.display = 'block';
-            const progressPct = Math.round((currentQuizState.step / questions.length) * 100);
-            quizProgressBar.style.width = progressPct + '%';
-
-            quizTitle.textContent = `שאלה ${currentQuizState.step} מתוך ${questions.length}`;
-            quizSubtitle.textContent = currentQ.q;
-
-            const grid = document.createElement('div');
-            grid.className = 'quiz-options-grid';
-
-            currentQ.options.forEach((opt, idx) => {
-                const card = document.createElement('div');
-                card.className = 'quiz-option-card';
-                card.setAttribute('data-opt-idx', idx.toString());
-
-                const icon = document.createElement('div');
-                icon.className = 'quiz-option-icon';
-                icon.textContent = '✏️';
-
-                const textWrap = document.createElement('div');
-                textWrap.className = 'quiz-option-text';
-
-                const h4 = document.createElement('h4');
-                h4.textContent = opt.text;
-
-                textWrap.appendChild(h4);
-                card.appendChild(icon);
-                card.appendChild(textWrap);
-
-                card.addEventListener('click', () => {
-                    currentQuizState.answers.push(opt);
-                    currentQuizState.step++;
-                    if (currentQuizState.step > questions.length) {
-                        renderResultStep();
-                    } else {
-                        renderQuestionStep();
+            const quizQuestionsMap = {
+                highschool: [
+                    {
+                        q: 'איך את/ה מרגיש/ה עם נושאי הליבה (מולריות, שיווי משקל, חומצות ובסיסים)?',
+                        options: [
+                            { text: 'מבין/ה מצוין, רוצה לשפר ל-90+ בבגרות! 🏆', score: 95, detail: 'רוצה להבטיח 95+ בבגרות' },
+                            { text: 'מבין/ה תאוריה, אבל מתקשה בחישובים ובשאלות בגרות מורכבות 📐', score: 65, detail: 'צריך/ה חיזוק בחישובים ותרגול בגרות' },
+                            { text: 'מרגיש/ה פער גדול וחוסר הבנה של הבסיס 🔴', score: 40, detail: 'זקוק/ה לסגירת פערים מהיסוד' }
+                        ]
+                    },
+                    {
+                        q: 'מתי המבחן / מתכונת / בגרות הקרובה שלך?',
+                        options: [
+                            { text: 'בעוד פחות מ-3 שבועות (צריך/ה מרתון דחוף!) ⚡', score: 10, detail: 'דחיפות גבוהה: מבחן קרוב' },
+                            { text: 'בעוד חודש-חודשיים (רוצה ליווי עקבי) 📅', score: 20, detail: 'ליווי רציף לקראת המבנים' },
+                            { text: 'תחילת שנה / בונה תשתית לקראת י"א-י"ב 🎓', score: 30, detail: 'בניית תשתית מוקדמת' }
+                        ]
+                    },
+                    {
+                        q: 'איזה סגנון לימוד הכי עוזר לך להבין חומר מורכב?',
+                        options: [
+                            { text: 'שיעור אונליין מהבית עם לוח דיגיטלי מתקדם 💻', score: 5, detail: 'העדפה: שיעור אונליין' },
+                            { text: 'שיעור פרונטלי פנים-אל-פנים ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
+                        ]
                     }
+                ],
+                prep: [
+                    {
+                        q: 'איזה תחום בכימיה מעכב אותך כרגע במכינה?',
+                        options: [
+                            { text: 'חישובים סטויכיומטריים, ריכוזים ומולים 📐', score: 60, detail: 'מתקשה בחישובים וריכוזים' },
+                            { text: 'מבנה אטומי, קשרים כימיים וכוחות בין-מולקולריים ⚛️', score: 70, detail: 'צריך/ה חיזוק בקשרים ומבנה' },
+                            { text: 'עומס חומר מטורף וקצב מרצה מהיר מדי ⏱️', score: 50, detail: 'עומס חומר וקצב מהיר' }
+                        ]
+                    },
+                    {
+                        q: 'מהי מטרת העל שלך במכינה?',
+                        options: [
+                            { text: 'קבלת פטור / מעבר בטוח של קורס הכימיה 🎯', score: 20, detail: 'יעד: מעבר בטוח' },
+                            { text: 'ציון 85+ לקבלה לפקולטה מבוקשת (הנדסה / רפואה) 🏆', score: 30, detail: 'יעד: 85+ לקבלה יוקרתית' }
+                        ]
+                    },
+                    {
+                        q: 'מהו אופן הלימוד המועדף עליך?',
+                        options: [
+                            { text: 'שיעורי אונליין גמישים ב-Zoom 💻', score: 5, detail: 'העדפה: Zoom אונליין' },
+                            { text: 'שיעור פרונטלי ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
+                        ]
+                    }
+                ],
+                academic: [
+                    {
+                        q: 'איזה קורס אקדמי את/ה לומד/ת כרגע?',
+                        options: [
+                            { text: 'כימיה אורגנית / ביוכימיה / מנגנוני תגובה 🧬', score: 65, detail: 'קורס: כימיה אורגנית' },
+                            { text: 'כימיה כללית / פיזיקלית / יסודות 🧪', score: 75, detail: 'קורס: כימיה כללית' },
+                            { text: 'קורס ייעודי למקצועות הרפואה / סיעוד / הנדסה 🏥', score: 70, detail: 'קורס: כימיה למקצועות הבריאות/הנדסה' }
+                        ]
+                    },
+                    {
+                        q: 'מהו המכשול המרכזי בלמידה לקראת המבחן?',
+                        options: [
+                            { text: 'הבנת מנגנוני תגובה וסטריאוכימיה באורגנית ⚛️', score: 50, detail: 'אתגר: מנגנונים וסטריאוכימיה' },
+                            { text: 'פתרון מבחנים משנים קודמות ומטלות הגשה 📝', score: 60, detail: 'אתגר: פתרון מבחנים ומטלות' }
+                        ]
+                    },
+                    {
+                        q: 'מהו פורמט השיעור המבוקש?',
+                        options: [
+                            { text: 'אונליין ב-Zoom עם לוח דיגיטלי מתקדם 💻', score: 5, detail: 'העדפה: אונליין Zoom' },
+                            { text: 'פרונטלי ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
+                        ]
+                    }
+                ],
+                middleschool: [
+                    {
+                        q: 'מה האתגר המרכזי של התלמיד/ה במדעים וכימיה?',
+                        options: [
+                            { text: 'בניית בסיס חזק והבנת המושגים הראשוניים 🧪', score: 80, detail: 'בניית תשתית מדעית' },
+                            { text: 'שיפור הציונים לקראת תיכון ומגמות מדעיות 📈', score: 85, detail: 'שיפור ציונים למגמות' }
+                        ]
+                    },
+                    {
+                        q: 'מהו המועד המועדף להתחלת הלימוד?',
+                        options: [
+                            { text: 'מיידי - שבועות קרובים ⚡', score: 10, detail: 'התחלה מיידית' },
+                            { text: 'בניית תוכנית תקופתית 📅', score: 15, detail: 'תוכנית עבודה תקופתית' }
+                        ]
+                    },
+                    {
+                        q: 'איזה פורמט עדיף לילד/ה?',
+                        options: [
+                            { text: 'שיעור אונליין חווייתי 💻', score: 5, detail: 'העדפה: אונליין' },
+                            { text: 'שיעור פרונטלי ברמת גן 🏠', score: 5, detail: 'העדפה: פרונטלי ברמת גן' }
+                        ]
+                    }
+                ]
+            };
+
+            function openQuiz() {
+                quizModal.classList.add('active');
+                quizModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                resetQuiz();
+            }
+
+            function closeQuiz() {
+                quizModal.classList.remove('active');
+                quizModal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            function resetQuiz() {
+                currentQuizState = { track: '', step: 0, answers: [] };
+                quizTitle.textContent = 'בחרו את מסלול הלימוד שלכם';
+                quizSubtitle.textContent = 'אבחון קצר של 45 שניות לקבלת תובנה והמלצת לימוד אישית מעידית';
+                quizProgressWrap.style.display = 'none';
+                renderTracksStep();
+            }
+
+            function renderTracksStep() {
+                const grid = document.createElement('div');
+                grid.className = 'quiz-options-grid';
+
+                tracksData.forEach(t => {
+                    const card = document.createElement('div');
+                    card.className = 'quiz-option-card';
+                    card.setAttribute('data-track', t.id);
+
+                    const icon = document.createElement('div');
+                    icon.className = 'quiz-option-icon';
+                    icon.textContent = t.icon;
+
+                    const textWrap = document.createElement('div');
+                    textWrap.className = 'quiz-option-text';
+
+                    const h4 = document.createElement('h4');
+                    h4.textContent = t.title;
+
+                    const p = document.createElement('p');
+                    p.textContent = t.desc;
+
+                    textWrap.appendChild(h4);
+                    textWrap.appendChild(p);
+                    card.appendChild(icon);
+                    card.appendChild(textWrap);
+
+                    card.addEventListener('click', () => {
+                        currentQuizState.track = t.id;
+                        currentQuizState.step = 1;
+                        renderQuestionStep();
+                    });
+
+                    grid.appendChild(card);
                 });
 
-                grid.appendChild(card);
-            });
-
-            quizBody.replaceChildren(grid);
-        }
-
-        function renderResultStep() {
-            quizProgressWrap.style.display = 'none';
-            quizTitle.textContent = 'תוצאת אבחון הלימוד וההתאמה שלך';
-            quizSubtitle.textContent = 'הניתוח הושלם בהצלחה! להלן הסיכום וההמלצה של עידית:';
-
-            let totalScore = 0;
-            let detailsList = [];
-            currentQuizState.answers.forEach(a => {
-                totalScore += (a.score || 0);
-                if (a.detail) detailsList.push(a.detail);
-            });
-
-            let trackInfo = tracksData.find(t => t.id === currentQuizState.track) || tracksData[0];
-
-            let feedbackText = `זיהינו תשתית ראשונית טובה, אך נדרש מיקוד בפתרון תרגילים מורכבים והקניית שיטות עבודה סדורות. ליווי מותאם אישית יעזור לסגור את הפערים ולשפר משמעותית את ההישגים.`;
-            if (totalScore < 65) {
-                feedbackText = `מתוצאות האבחון עולה כי מומלץ לחזק את נושאי הבסיס והחישובים הנדרשים. תוכנית עבודה מרוכזת ומותאמת אישית תסייע לבנות את הביטחון וההבנה מהיסוד.`;
-            } else if (totalScore > 80) {
-                feedbackText = `תוצאות האבחון מראות פוטנציאל גבוה להצטיינות! שיעור ממוקד יעזור לחדד את שאלות המכשול, לשפר מיומנויות פתרון ולבנות ביטחון מלא לקראת הבחינה.`;
+                quizBody.replaceChildren(grid);
             }
 
-            const waText = encodeURIComponent(
-                `היי עידית! 👋\n` +
-                `ביצעתי כעת את אבחון הלימוד בכימיה באתר שלך.\n\n` +
-                `📊 **פרטי האבחון שלי:**\n` +
-                `- 🎓 **מסלול לימוד**: ${trackInfo.title}\n` +
-                `- 📝 **נושאים ודגשים שסומנו**: ${detailsList.join(', ')}\n\n` +
-                `אשמח להתייעץ איתך ולבחון תיאום שיעור ניסיון! 🚀`
-            );
+            function renderQuestionStep() {
+                const questions = quizQuestionsMap[currentQuizState.track] || quizQuestionsMap.highschool;
+                const currentQ = questions[currentQuizState.step - 1];
 
-            const waUrl = `https://wa.me/972502719917?text=${waText}`;
+                if (!currentQ) {
+                    renderResultStep();
+                    return;
+                }
 
-            let html = `
-                <div class="quiz-result-box">
-                    <span class="quiz-badge">📊 דוח אבחון אישי</span>
-                    <div class="quiz-score-badge">🎯 סיכום אבחון והתאמה אישית</div>
-                    <div class="quiz-result-feedback">
-                        <strong>💡 ניתוח והמלצה של עידית:</strong><br>
-                        ${feedbackText}
+                quizProgressWrap.style.display = 'block';
+                const progressPct = Math.round((currentQuizState.step / questions.length) * 100);
+                quizProgressBar.style.width = progressPct + '%';
+
+                quizTitle.textContent = `שאלה ${currentQuizState.step} מתוך ${questions.length}`;
+                quizSubtitle.textContent = currentQ.q;
+
+                const grid = document.createElement('div');
+                grid.className = 'quiz-options-grid';
+
+                currentQ.options.forEach((opt, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'quiz-option-card';
+                    card.setAttribute('data-opt-idx', idx.toString());
+
+                    const icon = document.createElement('div');
+                    icon.className = 'quiz-option-icon';
+                    icon.textContent = '✏️';
+
+                    const textWrap = document.createElement('div');
+                    textWrap.className = 'quiz-option-text';
+
+                    const h4 = document.createElement('h4');
+                    h4.textContent = opt.text;
+
+                    textWrap.appendChild(h4);
+                    card.appendChild(icon);
+                    card.appendChild(textWrap);
+
+                    card.addEventListener('click', () => {
+                        currentQuizState.answers.push(opt);
+                        currentQuizState.step++;
+                        if (currentQuizState.step > questions.length) {
+                            renderResultStep();
+                        } else {
+                            renderQuestionStep();
+                        }
+                    });
+
+                    grid.appendChild(card);
+                });
+
+                quizBody.replaceChildren(grid);
+            }
+
+            function renderResultStep() {
+                quizProgressWrap.style.display = 'none';
+                quizTitle.textContent = 'תוצאת אבחון הלימוד וההתאמה שלך';
+                quizSubtitle.textContent = 'הניתוח הושלם בהצלחה! להלן הסיכום וההמלצה של עידית:';
+
+                let totalScore = 0;
+                let detailsList = [];
+                currentQuizState.answers.forEach(a => {
+                    totalScore += (a.score || 0);
+                    if (a.detail) detailsList.push(a.detail);
+                });
+
+                let trackInfo = tracksData.find(t => t.id === currentQuizState.track) || tracksData[0];
+
+                let feedbackText = `זיהינו תשתית ראשונית טובה, אך נדרש מיקוד בפתרון תרגילים מורכבים והקניית שיטות עבודה סדורות. ליווי מותאם אישית יעזור לסגור את הפערים ולשפר משמעותית את ההישגים.`;
+                if (totalScore < 65) {
+                    feedbackText = `מתוצאות האבחון עולה כי מומלץ לחזק את נושאי הבסיס והחישובים הנדרשים. תוכנית עבודה מרוכזת ומותאמת אישית תסייע לבנות את הביטחון וההבנה מהיסוד.`;
+                } else if (totalScore > 80) {
+                    feedbackText = `תוצאות האבחון מראות פוטנציאל גבוה להצטיינות! שיעור ממוקד יעזור לחדד את שאלות המכשול, לשפר מיומנויות פתרון ולבנות ביטחון מלא לקראת הבחינה.`;
+                }
+
+                const waText = encodeURIComponent(
+                    `היי עידית! 👋\n` +
+                    `ביצעתי כעת את אבחון הלימוד בכימיה באתר שלך.\n\n` +
+                    `📊 **פרטי האבחון שלי:**\n` +
+                    `- 🎓 **מסלול לימוד**: ${trackInfo.title}\n` +
+                    `- 📝 **נושאים ודגשים שסומנו**: ${detailsList.join(', ')}\n\n` +
+                    `אשמח להתייעץ איתך ולבחון תיאום שיעור ניסיון! 🚀`
+                );
+
+                const waUrl = `https://wa.me/972502719917?text=${waText}`;
+
+                let html = `
+                    <div class="quiz-result-box">
+                        <span class="quiz-badge">📊 דוח אבחון אישי</span>
+                        <div class="quiz-score-badge">🎯 סיכום אבחון והתאמה אישית</div>
+                        <div class="quiz-result-feedback">
+                            <strong>💡 ניתוח והמלצה של עידית:</strong><br>
+                            ${feedbackText}
+                        </div>
+                        <a href="${waUrl}" target="_blank" class="btn-whatsapp-quiz">
+                            💬 שליחת התוצאות והתייעצות מיידית עם עידית בוואטסאפ 🚀
+                        </a>
                     </div>
-                    <a href="${waUrl}" target="_blank" class="btn-whatsapp-quiz">
-                        💬 שליחת התוצאות והתייעצות מיידית עם עידית בוואטסאפ 🚀
-                    </a>
-                </div>
-            `;
+                `;
 
-            quizBody.innerHTML = html;
-        }
-
-        // Event Listeners
-        if (openQuizBtn) openQuizBtn.addEventListener('click', openQuiz);
-        if (floatingQuizBtn) floatingQuizBtn.addEventListener('click', openQuiz);
-        if (closeQuizModal) closeQuizModal.addEventListener('click', closeQuiz);
-
-        window.addEventListener('click', (e) => {
-            if (e.target === quizModal) {
-                closeQuiz();
+                quizBody.innerHTML = html;
             }
-        });
-    }
+
+            // Event Listeners
+            if (openQuizBtn) openQuizBtn.addEventListener('click', openQuiz);
+            if (floatingQuizBtn) floatingQuizBtn.addEventListener('click', openQuiz);
+            if (closeQuizModal) closeQuizModal.addEventListener('click', closeQuiz);
+
+            window.addEventListener('click', (e) => {
+                if (e.target === quizModal) {
+                    closeQuiz();
+                }
+            });
+        }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    initHeaderScroll();
+    initFooterYear();
+    initMobileMenu();
+    initDynamicOpeningStatus();
+    initLearningTracksTabs();
+    initContactForm();
+    initLightboxModal();
+    initInteractiveReviewModal();
+    initAccessibilityPanel();
+    initCookieConsentBanner();
+    initQuizEngine();
 });
 
