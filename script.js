@@ -541,20 +541,21 @@ ${customMessage}`;
         function applyAccSettings() {
             const body = document.body;
             const html = document.documentElement;
+            const btnLabel = btnEnlargeText ? btnEnlargeText.querySelector('.btn-label') : null;
             
             // Text size
             html.classList.remove('acc-text-lg', 'acc-text-xl');
-            btnEnlargeText.classList.remove('active');
+            if (btnEnlargeText) btnEnlargeText.classList.remove('active');
             if (accSettings.textSize === 'lg') {
                 html.classList.add('acc-text-lg');
-                btnEnlargeText.classList.add('active');
-                btnEnlargeText.querySelector('.btn-label').innerText = 'גופן: גדול';
+                if (btnEnlargeText) btnEnlargeText.classList.add('active');
+                if (btnLabel) btnLabel.innerText = 'גופן: גדול';
             } else if (accSettings.textSize === 'xl') {
                 html.classList.add('acc-text-xl');
-                btnEnlargeText.classList.add('active');
-                btnEnlargeText.querySelector('.btn-label').innerText = 'גופן: ענק';
+                if (btnEnlargeText) btnEnlargeText.classList.add('active');
+                if (btnLabel) btnLabel.innerText = 'גופן: ענק';
             } else {
-                btnEnlargeText.querySelector('.btn-label').innerText = 'הגדלת גופן';
+                if (btnLabel) btnLabel.innerText = 'הגדלת גופן';
             }
             
             // Contrast
