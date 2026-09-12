@@ -844,20 +844,38 @@ ${customMessage}`;
         }
 
         function renderTracksStep() {
-            let html = '<div class="quiz-options-grid">';
+            quizBody.innerHTML = '';
+            const grid = document.createElement('div');
+            grid.className = 'quiz-options-grid';
+
             tracksData.forEach(t => {
-                html += `
-                    <div class="quiz-option-card" data-track="${t.id}">
-                        <div class="quiz-option-icon">${t.icon}</div>
-                        <div class="quiz-option-text">
-                            <h4>${t.title}</h4>
-                            <p>${t.desc}</p>
-                        </div>
-                    </div>
-                `;
+                const card = document.createElement('div');
+                card.className = 'quiz-option-card';
+                card.setAttribute('data-track', t.id);
+
+                const icon = document.createElement('div');
+                icon.className = 'quiz-option-icon';
+                icon.textContent = t.icon;
+
+                const textContainer = document.createElement('div');
+                textContainer.className = 'quiz-option-text';
+
+                const h4 = document.createElement('h4');
+                h4.textContent = t.title;
+
+                const p = document.createElement('p');
+                p.textContent = t.desc;
+
+                textContainer.appendChild(h4);
+                textContainer.appendChild(p);
+
+                card.appendChild(icon);
+                card.appendChild(textContainer);
+
+                grid.appendChild(card);
             });
-            html += '</div>';
-            quizBody.innerHTML = html;
+
+            quizBody.appendChild(grid);
 
             quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
                 card.addEventListener('click', () => {
@@ -885,19 +903,32 @@ ${customMessage}`;
             quizTitle.textContent = `שאלה ${currentQuizState.step} מתוך ${questions.length}`;
             quizSubtitle.textContent = currentQ.q;
 
-            let html = '<div class="quiz-options-grid">';
+            quizBody.innerHTML = '';
+            const grid = document.createElement('div');
+            grid.className = 'quiz-options-grid';
+
             currentQ.options.forEach((opt, idx) => {
-                html += `
-                    <div class="quiz-option-card" data-opt-idx="${idx}">
-                        <div class="quiz-option-icon">✏️</div>
-                        <div class="quiz-option-text">
-                            <h4>${opt.text}</h4>
-                        </div>
-                    </div>
-                `;
+                const card = document.createElement('div');
+                card.className = 'quiz-option-card';
+                card.setAttribute('data-opt-idx', idx);
+
+                const icon = document.createElement('div');
+                icon.className = 'quiz-option-icon';
+                icon.textContent = '✏️';
+
+                const textContainer = document.createElement('div');
+                textContainer.className = 'quiz-option-text';
+
+                const h4 = document.createElement('h4');
+                h4.textContent = opt.text;
+
+                textContainer.appendChild(h4);
+                card.appendChild(icon);
+                card.appendChild(textContainer);
+                grid.appendChild(card);
             });
-            html += '</div>';
-            quizBody.innerHTML = html;
+
+            quizBody.appendChild(grid);
 
             quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
                 card.addEventListener('click', () => {
