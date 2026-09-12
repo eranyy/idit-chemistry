@@ -68,11 +68,11 @@ describe('script.js basic functionality', () => {
     test('handles fetch network error in contact form dispatch gracefully', async () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="0501234567" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="0501234567" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -94,11 +94,11 @@ describe('script.js basic functionality', () => {
     test('validates contact form phone input edge cases correctly', () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="12345" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="12345" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;

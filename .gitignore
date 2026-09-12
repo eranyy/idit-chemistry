@@ -11,3 +11,4 @@ implementation_plan.md
 Thumbs.db
 Desktop.ini
 .DS_Store
+node_modules/

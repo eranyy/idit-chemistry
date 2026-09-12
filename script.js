@@ -844,29 +844,42 @@ ${customMessage}`;
         }
 
         function renderTracksStep() {
-            let html = '<div class="quiz-options-grid">';
-            tracksData.forEach(t => {
-                html += `
-                    <div class="quiz-option-card" data-track="${t.id}">
-                        <div class="quiz-option-icon">${t.icon}</div>
-                        <div class="quiz-option-text">
-                            <h4>${t.title}</h4>
-                            <p>${t.desc}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            quizBody.innerHTML = html;
+            quizBody.innerHTML = '';
+            const gridContainer = document.createElement('div');
+            gridContainer.className = 'quiz-options-grid';
 
-            quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
+            tracksData.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'quiz-option-card';
+                card.setAttribute('data-track', t.id);
+
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'quiz-option-icon';
+                iconDiv.textContent = t.icon;
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'quiz-option-text';
+                const h4 = document.createElement('h4');
+                h4.textContent = t.title;
+                const p = document.createElement('p');
+                p.textContent = t.desc;
+
+                textDiv.appendChild(h4);
+                textDiv.appendChild(p);
+
+                card.appendChild(iconDiv);
+                card.appendChild(textDiv);
+
                 card.addEventListener('click', () => {
-                    const trackId = card.getAttribute('data-track');
-                    currentQuizState.track = trackId;
+                    currentQuizState.track = t.id;
                     currentQuizState.step = 1;
                     renderQuestionStep();
                 });
+
+                gridContainer.appendChild(card);
             });
+
+            quizBody.appendChild(gridContainer);
         }
 
         function renderQuestionStep() {
@@ -885,24 +898,30 @@ ${customMessage}`;
             quizTitle.textContent = `שאלה ${currentQuizState.step} מתוך ${questions.length}`;
             quizSubtitle.textContent = currentQ.q;
 
-            let html = '<div class="quiz-options-grid">';
-            currentQ.options.forEach((opt, idx) => {
-                html += `
-                    <div class="quiz-option-card" data-opt-idx="${idx}">
-                        <div class="quiz-option-icon">✏️</div>
-                        <div class="quiz-option-text">
-                            <h4>${opt.text}</h4>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            quizBody.innerHTML = html;
+            quizBody.innerHTML = '';
+            const gridContainer = document.createElement('div');
+            gridContainer.className = 'quiz-options-grid';
 
-            quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
+            currentQ.options.forEach((opt, idx) => {
+                const card = document.createElement('div');
+                card.className = 'quiz-option-card';
+                card.setAttribute('data-opt-idx', idx);
+
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'quiz-option-icon';
+                iconDiv.textContent = '✏️';
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'quiz-option-text';
+                const h4 = document.createElement('h4');
+                h4.textContent = opt.text;
+                textDiv.appendChild(h4);
+
+                card.appendChild(iconDiv);
+                card.appendChild(textDiv);
+
                 card.addEventListener('click', () => {
-                    const optIdx = parseInt(card.getAttribute('data-opt-idx'), 10);
-                    const selectedOpt = currentQ.options[optIdx];
+                    const selectedOpt = currentQ.options[idx];
                     currentQuizState.answers.push(selectedOpt);
 
                     currentQuizState.step++;
@@ -912,7 +931,11 @@ ${customMessage}`;
                         renderQuestionStep();
                     }
                 });
+
+                gridContainer.appendChild(card);
             });
+
+            quizBody.appendChild(gridContainer);
         }
 
         function renderResultStep() {
