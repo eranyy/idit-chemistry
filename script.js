@@ -844,9 +844,8 @@ ${customMessage}`;
         }
 
         function renderTracksStep() {
-            let html = '<div class="quiz-options-grid">';
-            tracksData.forEach(t => {
-                html += `
+            const html = '<div class="quiz-options-grid">' +
+                tracksData.map(t => `
                     <div class="quiz-option-card" data-track="${t.id}">
                         <div class="quiz-option-icon">${t.icon}</div>
                         <div class="quiz-option-text">
@@ -854,9 +853,8 @@ ${customMessage}`;
                             <p>${t.desc}</p>
                         </div>
                     </div>
-                `;
-            });
-            html += '</div>';
+                `).join('') +
+                '</div>';
             quizBody.innerHTML = html;
 
             quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
@@ -885,18 +883,16 @@ ${customMessage}`;
             quizTitle.textContent = `שאלה ${currentQuizState.step} מתוך ${questions.length}`;
             quizSubtitle.textContent = currentQ.q;
 
-            let html = '<div class="quiz-options-grid">';
-            currentQ.options.forEach((opt, idx) => {
-                html += `
+            const html = '<div class="quiz-options-grid">' +
+                currentQ.options.map((opt, idx) => `
                     <div class="quiz-option-card" data-opt-idx="${idx}">
                         <div class="quiz-option-icon">✏️</div>
                         <div class="quiz-option-text">
                             <h4>${opt.text}</h4>
                         </div>
                     </div>
-                `;
-            });
-            html += '</div>';
+                `).join('') +
+                '</div>';
             quizBody.innerHTML = html;
 
             quizBody.querySelectorAll('.quiz-option-card').forEach(card => {
