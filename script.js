@@ -848,6 +848,8 @@ ${customMessage}`;
             const grid = document.createElement('div');
             grid.className = 'quiz-options-grid';
 
+            const fragment = document.createDocumentFragment();
+
             tracksData.forEach(t => {
                 const card = document.createElement('div');
                 card.className = 'quiz-option-card';
@@ -877,9 +879,10 @@ ${customMessage}`;
                     renderQuestionStep();
                 });
 
-                grid.appendChild(card);
+                fragment.appendChild(card);
             });
 
+            grid.appendChild(fragment);
             quizBody.replaceChildren(grid);
         }
 
@@ -901,6 +904,8 @@ ${customMessage}`;
 
             const grid = document.createElement('div');
             grid.className = 'quiz-options-grid';
+
+            const fragment = document.createDocumentFragment();
 
             currentQ.options.forEach((opt, idx) => {
                 const card = document.createElement('div');
@@ -931,9 +936,10 @@ ${customMessage}`;
                     }
                 });
 
-                grid.appendChild(card);
+                fragment.appendChild(card);
             });
 
+            grid.appendChild(fragment);
             quizBody.replaceChildren(grid);
         }
 
