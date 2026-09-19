@@ -82,61 +82,49 @@ document.addEventListener('DOMContentLoaded', () => {
     let jlmFormatter = null;
     let utcFormatter = null;
 
-    // 3. Dynamic Opening Status
-    function checkStatus() {
-        const now = new Date();
-        const day = now.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
-        const currentHour = now.getHours();
-        const currentMin = now.getMinutes();
-        const currentTime = currentHour * 60 + currentMin; // minutes from midnight
-        
-        let isOpen = false;
-        
-        // Helper to check if Israel is currently in Daylight Saving Time (UTC+3)
-        function isIsraelDST() {
-            try {
-                if (!jlmFormatter) {
-                    jlmFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hourCycle: 'h23' });
-                }
-                if (!utcFormatter) {
-                    utcFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: 'numeric', hourCycle: 'h23' });
-                }
-                const now = new Date();
-                const jlmHour = parseInt(jlmFormatter.format(now), 10);
-                const utcHour = parseInt(utcFormatter.format(now), 10);
-                return ((jlmHour - utcHour + 24) % 24) === 3;
-            } catch (e) {
-                const month = new Date().getMonth() + 1;
-                return month >= 4 && month <= 10;
+    // Helper to check if Israel is currently in Daylight Saving Time (UTC+3)
+    function isIsraelDST() {
+        try {
+            if (!jlmFormatter) {
+                jlmFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hourCycle: 'h23' });
             }
+            if (!utcFormatter) {
+                utcFormatter = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: 'numeric', hourCycle: 'h23' });
+            }
+            const now = new Date();
+            const jlmHour = parseInt(jlmFormatter.format(now), 10);
+            const utcHour = parseInt(utcFormatter.format(now), 10);
+            return ((jlmHour - utcHour + 24) % 24) === 3;
+        } catch (e) {
+            const month = new Date().getMonth() + 1;
+            return month >= 4 && month <= 10;
         }
-        
+    }
+
+    function checkIfOpen(day, currentTime, isDST) {
         // Sunday (0) to Thursday (4) from 08:00 to 20:00
         if (day >= 0 && day <= 4) {
             const openTime = 8 * 60; // 08:00
             const closeTime = 20 * 60; // 20:00
-            if (currentTime >= openTime && currentTime < closeTime) {
-                isOpen = true;
-            }
+            return (currentTime >= openTime && currentTime < closeTime);
         } 
         // Friday (5) from 08:00 to 17:00 (Summer) or 15:00 (Winter)
         else if (day === 5) {
             const openTime = 8 * 60; // 08:00
-            const closeHour = isIsraelDST() ? 17 : 15;
+            const closeHour = isDST ? 17 : 15;
             const closeTime = closeHour * 60;
-            if (currentTime >= openTime && currentTime < closeTime) {
-                isOpen = true;
-            }
+            return (currentTime >= openTime && currentTime < closeTime);
         }
         // Saturday (6) from 18:00 to 21:00
         else if (day === 6) {
             const openTime = 18 * 60; // 18:00
             const closeTime = 21 * 60; // 21:00
-            if (currentTime >= openTime && currentTime < closeTime) {
-                isOpen = true;
-            }
+            return (currentTime >= openTime && currentTime < closeTime);
         }
-        
+        return false;
+    }
+
+    function updateOpeningStatusUI(isOpen) {
         // Lazy DOM caching for status badge
         if (!statusBadgeEl) {
             statusBadgeEl = document.getElementById('openingStatus');
@@ -155,7 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (statusTextEl) statusTextEl.innerText = 'סגור כעת – השאירו פרטים ונחזור אליכם';
             }
         }
-        
+    }
+
+    function updateHoursTableUI(day) {
         // Highlight current day in table using cached rows
         if (!hoursTableRows) {
             hoursTableRows = Array.from(document.querySelectorAll('#hoursTable tr[data-day]'));
@@ -166,6 +156,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (targetRow) targetRow.classList.add('current-day');
             currentDayRow = targetRow;
         }
+    }
+
+    // 3. Dynamic Opening Status
+    function checkStatus() {
+        const now = new Date();
+        const day = now.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+        const currentHour = now.getHours();
+        const currentMin = now.getMinutes();
+        const currentTime = currentHour * 60 + currentMin; // minutes from midnight
+
+        const isDST = isIsraelDST();
+        const isOpen = checkIfOpen(day, currentTime, isDST);
+
+        updateOpeningStatusUI(isOpen);
+        updateHoursTableUI(day);
     }
     
     checkStatus();
@@ -561,37 +566,37 @@ ${customMessage}`;
             // Contrast
             if (accSettings.contrast) {
                 body.classList.add('acc-contrast');
-                btnContrast.classList.add('active');
+                if (btnContrast) btnContrast.classList.add('active');
             } else {
                 body.classList.remove('acc-contrast');
-                btnContrast.classList.remove('active');
+                if (btnContrast) btnContrast.classList.remove('active');
             }
             
             // Monochrome
             if (accSettings.monochrome) {
                 html.classList.add('acc-monochrome');
-                btnMonochrome.classList.add('active');
+                if (btnMonochrome) btnMonochrome.classList.add('active');
             } else {
                 html.classList.remove('acc-monochrome');
-                btnMonochrome.classList.remove('active');
+                if (btnMonochrome) btnMonochrome.classList.remove('active');
             }
             
             // Links
             if (accSettings.links) {
                 body.classList.add('acc-links');
-                btnLinks.classList.add('active');
+                if (btnLinks) btnLinks.classList.add('active');
             } else {
                 body.classList.remove('acc-links');
-                btnLinks.classList.remove('active');
+                if (btnLinks) btnLinks.classList.remove('active');
             }
             
             // Font
             if (accSettings.font) {
                 body.classList.add('acc-font');
-                btnFont.classList.add('active');
+                if (btnFont) btnFont.classList.add('active');
             } else {
                 body.classList.remove('acc-font');
-                btnFont.classList.remove('active');
+                if (btnFont) btnFont.classList.remove('active');
             }
         }
         
@@ -607,7 +612,7 @@ ${customMessage}`;
         }
         
         // Event Listeners for buttons
-        btnEnlargeText.addEventListener('click', () => {
+        if (btnEnlargeText) btnEnlargeText.addEventListener('click', () => {
             if (accSettings.textSize === 'md') {
                 accSettings.textSize = 'lg';
             } else if (accSettings.textSize === 'lg') {
@@ -619,31 +624,31 @@ ${customMessage}`;
             saveAccSettings();
         });
         
-        btnContrast.addEventListener('click', () => {
+        if (btnContrast) btnContrast.addEventListener('click', () => {
             accSettings.contrast = !accSettings.contrast;
             applyAccSettings();
             saveAccSettings();
         });
         
-        btnMonochrome.addEventListener('click', () => {
+        if (btnMonochrome) btnMonochrome.addEventListener('click', () => {
             accSettings.monochrome = !accSettings.monochrome;
             applyAccSettings();
             saveAccSettings();
         });
         
-        btnLinks.addEventListener('click', () => {
+        if (btnLinks) btnLinks.addEventListener('click', () => {
             accSettings.links = !accSettings.links;
             applyAccSettings();
             saveAccSettings();
         });
         
-        btnFont.addEventListener('click', () => {
+        if (btnFont) btnFont.addEventListener('click', () => {
             accSettings.font = !accSettings.font;
             applyAccSettings();
             saveAccSettings();
         });
         
-        btnReset.addEventListener('click', () => {
+        if (btnReset) btnReset.addEventListener('click', () => {
             accSettings = {
                 textSize: 'md',
                 contrast: false,
