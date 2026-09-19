@@ -10,6 +10,9 @@
     }
 })();
 
+var WEB3FORMS_ADMIN_KEY = 'faf61723-a60d-463d-9f5a-8f45866c83af';
+var WEB3FORMS_IDIT_KEY = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
+
 // Reusable Web3Forms API email dispatch helper
 function sendWeb3FormEmail({ accessKey, subject, fromName, name, email, message, errorTag = "Admin" }) {
     if (!accessKey) return Promise.resolve();
@@ -276,8 +279,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
                 
                 // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API in background
-                const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-                const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
+                const adminKey = WEB3FORMS_ADMIN_KEY;
+                const iditKey = WEB3FORMS_IDIT_KEY;
                 
                 const emailSubject = `פנייה חדשה באתר מורה לכימיה - ${nameInput.value.trim()}`;
                 const emailBody = `פנייה חדשה התקבלה באתר:
@@ -458,8 +461,8 @@ ${customMessage}`;
             const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
             
             // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API
-            const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-            const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
+            const adminKey = WEB3FORMS_ADMIN_KEY;
+            const iditKey = WEB3FORMS_IDIT_KEY;
             
             const emailSubject = `המלצה חדשה באתר מורה לכימיה - ${name}`;
             const emailBody = `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`;
