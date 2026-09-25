@@ -5,10 +5,19 @@
 const fs = require('fs');
 const path = require('path');
 
-const scriptContent = fs.readFileSync(path.resolve(__dirname, '../script.js'), 'utf8');
+const scriptContent = fs.readFileSync(path.resolve(__dirname, '../public/script.js'), 'utf8');
 
 describe('script.js basic functionality', () => {
+    const originalAddEventListener = document.addEventListener;
+    let globalListeners = [];
+
     beforeEach(() => {
+        globalListeners = [];
+        document.addEventListener = jest.fn((event, cb) => {
+            globalListeners.push({ event, cb });
+            originalAddEventListener.call(document, event, cb);
+        });
+
         document.body.innerHTML = `
             <header id="header"></header>
             <span id="currentYear"></span>
@@ -57,6 +66,17 @@ describe('script.js basic functionality', () => {
     });
 
     test('handles invalid JSON in localStorage accSettings gracefully', () => {
+        document.body.innerHTML += `
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel"></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnContrast"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
+            <button id="btnEnlargeText"><span class="btn-label"></span></button>
+        `;
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         localStorage.setItem('accSettings', 'invalid json{');
         eval(scriptContent);
@@ -65,14 +85,26 @@ describe('script.js basic functionality', () => {
         consoleSpy.mockRestore();
     });
 
+    afterEach(() => {
+        // Reset DOM and cleanup listeners to prevent state leakage
+        globalListeners.forEach(({ event, cb }) => {
+            originalAddEventListener.call(document, event, cb); // Note: We actually want removeEventListener
+            document.removeEventListener(event, cb);
+        });
+        document.addEventListener = originalAddEventListener;
+        document.body.innerHTML = '';
+        localStorage.clear();
+        jest.restoreAllMocks();
+    });
+
     test('handles fetch network error in contact form dispatch gracefully', async () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="0501234567" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="0501234567" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -94,11 +126,11 @@ describe('script.js basic functionality', () => {
     test('validates contact form phone input edge cases correctly', () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="12345" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="12345" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -106,7 +138,7 @@ describe('script.js basic functionality', () => {
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
         const form = document.getElementById('contactForm');
-        const phoneInput = document.getElementById('contactPhone');
+        const phoneInput = document.getElementById('phoneInput');
 
         // Test short phone (< 9 digits)
         form.dispatchEvent(new Event('submit', { cancelable: true }));
@@ -132,6 +164,11 @@ describe('script.js basic functionality', () => {
             <div id="accessibilityPanel"></div>
             <button id="accessibilityClose"></button>
             <button id="btnContrast"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
+            <button id="btnEnlargeText"><span class="btn-label"></span></button>
         `;
         eval(scriptContent);
         document.dispatchEvent(new Event('DOMContentLoaded'));

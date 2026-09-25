@@ -10,16 +10,15 @@
     }
 })();
 
-// Reusable Web3Forms API email dispatch helper
-function sendWeb3FormEmail({ accessKey, subject, fromName, name, email, message, errorTag = "Admin" }) {
-    if (!accessKey) return Promise.resolve();
-    return fetch('https://api.web3forms.com/submit', {
+// Reusable backend email dispatch helper
+function sendBackendEmail({ target, subject, fromName, name, email, message, errorTag = "Admin" }) {
+    return fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-            access_key: accessKey,
+            target: target,
             subject: subject,
-            from_name: fromName,
+            fromName: fromName,
             name: name,
             email: email,
             message: message
@@ -275,10 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const encodedText = encodeURIComponent(whatsappText);
                 const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
                 
-                // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API in background
-                const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-                const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
-                
+                // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via backend proxy in background
                 const emailSubject = `פנייה חדשה באתר מורה לכימיה - ${nameInput.value.trim()}`;
                 const emailBody = `פנייה חדשה התקבלה באתר:
 שם מלא: ${nameInput.value.trim()}
@@ -298,8 +294,8 @@ ${customMessage}`;
                 };
 
                 // Dispatch to Admin & Idit
-                sendWeb3FormEmail({ ...emailParams, accessKey: adminKey, errorTag: "Admin" });
-                sendWeb3FormEmail({ ...emailParams, accessKey: iditKey, errorTag: "Idit" });
+                sendBackendEmail({ ...emailParams, target: 'Admin', errorTag: "Admin" });
+                sendBackendEmail({ ...emailParams, target: 'Idit', errorTag: "Idit" });
                 
                 // Hide Form & Show Success Message
                 contactForm.style.display = 'none';
@@ -457,10 +453,7 @@ ${customMessage}`;
             const encodedText = encodeURIComponent(whatsappMsg);
             const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
             
-            // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API
-            const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-            const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
-            
+            // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via backend proxy
             const emailSubject = `המלצה חדשה באתר מורה לכימיה - ${name}`;
             const emailBody = `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`;
 
@@ -473,8 +466,8 @@ ${customMessage}`;
             };
 
             // Dispatch to Admin & Idit
-            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: adminKey, errorTag: "Admin review" });
-            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: iditKey, errorTag: "Idit review" });
+            sendBackendEmail({ ...reviewEmailParams, target: 'Admin', errorTag: "Admin review" });
+            sendBackendEmail({ ...reviewEmailParams, target: 'Idit', errorTag: "Idit review" });
             
             hideReviewModal();
             
@@ -607,53 +600,65 @@ ${customMessage}`;
         }
         
         // Event Listeners for buttons
-        btnEnlargeText.addEventListener('click', () => {
-            if (accSettings.textSize === 'md') {
-                accSettings.textSize = 'lg';
-            } else if (accSettings.textSize === 'lg') {
-                accSettings.textSize = 'xl';
-            } else {
-                accSettings.textSize = 'md';
-            }
-            applyAccSettings();
-            saveAccSettings();
-        });
+        if (btnEnlargeText) {
+            btnEnlargeText.addEventListener('click', () => {
+                if (accSettings.textSize === 'md') {
+                    accSettings.textSize = 'lg';
+                } else if (accSettings.textSize === 'lg') {
+                    accSettings.textSize = 'xl';
+                } else {
+                    accSettings.textSize = 'md';
+                }
+                applyAccSettings();
+                saveAccSettings();
+            });
+        }
         
-        btnContrast.addEventListener('click', () => {
-            accSettings.contrast = !accSettings.contrast;
-            applyAccSettings();
-            saveAccSettings();
-        });
+        if (btnContrast) {
+            btnContrast.addEventListener('click', () => {
+                accSettings.contrast = !accSettings.contrast;
+                applyAccSettings();
+                saveAccSettings();
+            });
+        }
         
-        btnMonochrome.addEventListener('click', () => {
-            accSettings.monochrome = !accSettings.monochrome;
-            applyAccSettings();
-            saveAccSettings();
-        });
+        if (btnMonochrome) {
+            btnMonochrome.addEventListener('click', () => {
+                accSettings.monochrome = !accSettings.monochrome;
+                applyAccSettings();
+                saveAccSettings();
+            });
+        }
         
-        btnLinks.addEventListener('click', () => {
-            accSettings.links = !accSettings.links;
-            applyAccSettings();
-            saveAccSettings();
-        });
+        if (btnLinks) {
+            btnLinks.addEventListener('click', () => {
+                accSettings.links = !accSettings.links;
+                applyAccSettings();
+                saveAccSettings();
+            });
+        }
         
-        btnFont.addEventListener('click', () => {
-            accSettings.font = !accSettings.font;
-            applyAccSettings();
-            saveAccSettings();
-        });
+        if (btnFont) {
+            btnFont.addEventListener('click', () => {
+                accSettings.font = !accSettings.font;
+                applyAccSettings();
+                saveAccSettings();
+            });
+        }
         
-        btnReset.addEventListener('click', () => {
-            accSettings = {
-                textSize: 'md',
-                contrast: false,
-                monochrome: false,
-                links: false,
-                font: false
-            };
-            applyAccSettings();
-            saveAccSettings();
-        });
+        if (btnReset) {
+            btnReset.addEventListener('click', () => {
+                accSettings = {
+                    textSize: 'md',
+                    contrast: false,
+                    monochrome: false,
+                    links: false,
+                    font: false
+                };
+                applyAccSettings();
+                saveAccSettings();
+            });
+        }
     }
 
     // 9. Cookie Consent Banner Logic
