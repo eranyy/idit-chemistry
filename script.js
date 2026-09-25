@@ -27,8 +27,7 @@ function sendWeb3FormEmail({ accessKey, subject, fromName, name, email, message,
     }).catch(err => console.error(`${errorTag} contact dispatch error:`, err));
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    
+function initHeaderScroll() {
     // 1. Header scroll styling
     const header = document.getElementById('header');
     let isTicking = false;
@@ -47,17 +46,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, { passive: true });
     }
+}
 
+function initFooterYear() {
     // Set dynamic year in footer
     const currentYearSpan = document.getElementById('currentYear');
     if (currentYearSpan) {
         currentYearSpan.textContent = new Date().getFullYear();
     }
+}
 
+function initMobileMenu() {
     // 2. Mobile Menu Toggle
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('navMenu');
-    
+
     if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', () => {
             const isActive = navMenu.classList.toggle('active');
@@ -73,7 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+}
 
+function initDynamicOpeningStatus() {
     // Cached DOM elements & formatters for status check
     let statusBadgeEl = null;
     let statusTextEl = null;
@@ -167,15 +172,17 @@ document.addEventListener('DOMContentLoaded', () => {
             currentDayRow = targetRow;
         }
     }
-    
+
     checkStatus();
     // Refresh status check every 30 seconds
     setInterval(checkStatus, 30000);
+}
 
+function initLearningTracksFiltering() {
     // 4. Learning Tracks Interactive Tab Filtering
     const tabBtns = document.querySelectorAll('.tab-btn');
     const trackCards = document.querySelectorAll('.track-card');
-    
+
     if (tabBtns.length > 0 && trackCards.length > 0) {
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -203,11 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+}
 
+function initContactForm() {
     // 5. Contact Form Validation and Auto WhatsApp Direct Funnel
     const contactForm = document.getElementById('contactForm');
     const formFeedback = document.getElementById('formFeedback');
-    
+
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -265,11 +274,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Prepare WhatsApp message
                 const whatsappText = `שלום עידית, שלחתי פנייה דרך האתר:
-✍️ *שם מלא:* ${nameInput.value.trim()}
-📞 *טלפון:* ${phoneInput.value.trim()}
-🎓 *רמת לימודים:* ${levelText}
-🏠 *פורמט מועדף:* ${formatText}
-💬 *הודעה:* ${customMessage}`;
+    ✍️ *שם מלא:* ${nameInput.value.trim()}
+    📞 *טלפון:* ${phoneInput.value.trim()}
+    🎓 *רמת לימודים:* ${levelText}
+    🏠 *פורמט מועדף:* ${formatText}
+    💬 *הודעה:* ${customMessage}`;
                 
                 // URL Encode
                 const encodedText = encodeURIComponent(whatsappText);
@@ -281,13 +290,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const emailSubject = `פנייה חדשה באתר מורה לכימיה - ${nameInput.value.trim()}`;
                 const emailBody = `פנייה חדשה התקבלה באתר:
-שם מלא: ${nameInput.value.trim()}
-טלפון: ${phoneInput.value.trim()}
-רמת לימודים: ${levelText}
-פורמט מועדף: ${formatText}
+    שם מלא: ${nameInput.value.trim()}
+    טלפון: ${phoneInput.value.trim()}
+    רמת לימודים: ${levelText}
+    פורמט מועדף: ${formatText}
 
-תוכן ההודעה:
-${customMessage}`;
+    תוכן ההודעה:
+    ${customMessage}`;
 
                 const emailParams = {
                     subject: emailSubject,
@@ -312,14 +321,16 @@ ${customMessage}`;
             }
         });
     }
+}
 
+function initLightboxModal() {
     // 6. Lightbox Modal for Certificates
     const authCards = document.querySelectorAll('.auth-card');
     const certModal = document.getElementById('certModal');
     const modalImg = document.getElementById('modalImg');
     const modalCaption = document.getElementById('modalCaption');
     const closeModal = document.getElementById('closeModal');
-    
+
     if (authCards.length > 0 && certModal && modalImg && modalCaption && closeModal) {
         authCards.forEach(card => {
             card.addEventListener('click', () => {
@@ -363,7 +374,9 @@ ${customMessage}`;
             }
         });
     }
+}
 
+function initReviewModal() {
     // 7. Interactive Review Modal & Star Rating
     const openReviewBtn = document.getElementById('openReviewBtn');
     const reviewModal = document.getElementById('reviewModal');
@@ -371,7 +384,7 @@ ${customMessage}`;
     const reviewForm = document.getElementById('reviewForm');
     const stars = document.querySelectorAll('#starRating .star');
     const ratingInput = document.getElementById('reviewRating');
-    
+
     if (openReviewBtn && reviewModal && closeReviewModal && reviewForm) {
         
         // Open Modal
@@ -484,19 +497,21 @@ ${customMessage}`;
             }, 500);
         });
     }
+}
 
+function initAccessibilityPanel() {
     // 8. Accessibility floating panel interactions & state persistence
     const accToggle = document.getElementById('accessibilityToggle');
     const accPanel = document.getElementById('accessibilityPanel');
     const accClose = document.getElementById('accessibilityClose');
-    
+
     const btnEnlargeText = document.getElementById('btnEnlargeText');
     const btnContrast = document.getElementById('btnContrast');
     const btnMonochrome = document.getElementById('btnMonochrome');
     const btnLinks = document.getElementById('btnLinks');
     const btnFont = document.getElementById('btnFont');
     const btnReset = document.getElementById('btnReset');
-    
+
     if (accToggle && accPanel && accClose) {
         // Toggle panel
         accToggle.addEventListener('click', () => {
@@ -655,11 +670,13 @@ ${customMessage}`;
             saveAccSettings();
         });
     }
+}
 
+function initCookieConsent() {
     // 9. Cookie Consent Banner Logic
     const cookieBanner = document.getElementById('cookieBanner');
     const acceptCookiesBtn = document.getElementById('acceptCookiesBtn');
-    
+
     if (cookieBanner && acceptCookiesBtn) {
         // Check if user has already accepted cookies
         const hasAccepted = localStorage.getItem('cookieConsentAccepted');
@@ -677,7 +694,9 @@ ${customMessage}`;
             cookieBanner.setAttribute('aria-hidden', 'true');
         });
     }
+}
 
+function initQuizEngine() {
     // 10. Interactive Chemistry Readiness Assessment Quiz Engine
     const quizModal = document.getElementById('quizModal');
     const openQuizBtn = document.getElementById('openQuizBtn');
@@ -997,5 +1016,19 @@ ${customMessage}`;
             }
         });
     }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initHeaderScroll();
+    initFooterYear();
+    initMobileMenu();
+    initDynamicOpeningStatus();
+    initLearningTracksFiltering();
+    initContactForm();
+    initLightboxModal();
+    initReviewModal();
+    initAccessibilityPanel();
+    initCookieConsent();
+    initQuizEngine();
 });
 

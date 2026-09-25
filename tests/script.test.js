@@ -8,9 +8,25 @@ const path = require('path');
 const scriptContent = fs.readFileSync(path.resolve(__dirname, '../script.js'), 'utf8');
 
 describe('script.js basic functionality', () => {
+
+    let originalAddEventListener;
+    let registeredListeners = [];
     beforeEach(() => {
+        if (!originalAddEventListener) {
+            originalAddEventListener = document.addEventListener;
+            document.addEventListener = function (type, listener, options) {
+                registeredListeners.push({ target: document, type, listener, options });
+                originalAddEventListener.call(document, type, listener, options);
+            };
+            window.originalAddEventListener = window.addEventListener;
+            window.addEventListener = function (type, listener, options) {
+                registeredListeners.push({ target: window, type, listener, options });
+                window.originalAddEventListener.call(window, type, listener, options);
+            };
+        }
         document.body.innerHTML = `
             <header id="header"></header>
+
             <span id="currentYear"></span>
             <button id="menuToggle" aria-expanded="false"></button>
             <nav id="navMenu"></nav>
@@ -20,6 +36,15 @@ describe('script.js basic functionality', () => {
             </table>
             <div id="openingStatus"><span class="status-text"></span></div>
         `;
+    });
+
+
+    afterEach(() => {
+        registeredListeners.forEach(({ target, type, listener, options }) => {
+            target.removeEventListener(type, listener, options);
+        });
+        registeredListeners = [];
+        jest.clearAllMocks();
     });
 
     test('sets current year in footer', () => {
@@ -57,6 +82,17 @@ describe('script.js basic functionality', () => {
     });
 
     test('handles invalid JSON in localStorage accSettings gracefully', () => {
+        document.body.innerHTML += `
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel"></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnEnlargeText"></button>
+            <button id="btnContrast"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
+        `;
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         localStorage.setItem('accSettings', 'invalid json{');
         eval(scriptContent);
@@ -68,11 +104,11 @@ describe('script.js basic functionality', () => {
     test('handles fetch network error in contact form dispatch gracefully', async () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="0501234567" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="0501234567" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -94,11 +130,11 @@ describe('script.js basic functionality', () => {
     test('validates contact form phone input edge cases correctly', () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="12345" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="12345" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -106,7 +142,7 @@ describe('script.js basic functionality', () => {
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
         const form = document.getElementById('contactForm');
-        const phoneInput = document.getElementById('contactPhone');
+        const phoneInput = document.getElementById('phoneInput');
 
         // Test short phone (< 9 digits)
         form.dispatchEvent(new Event('submit', { cancelable: true }));
@@ -131,7 +167,12 @@ describe('script.js basic functionality', () => {
             <button id="accessibilityToggle"></button>
             <div id="accessibilityPanel"></div>
             <button id="accessibilityClose"></button>
+            <button id="btnEnlargeText"></button>
             <button id="btnContrast"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
         `;
         eval(scriptContent);
         document.dispatchEvent(new Event('DOMContentLoaded'));
