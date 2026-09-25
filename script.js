@@ -179,8 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tabBtns.length > 0 && trackCards.length > 0) {
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // Remove active class from all buttons
-                tabBtns.forEach(b => b.classList.remove('active'));
+                // Remove active class from currently active button
+                const currentActive = document.querySelector('.tab-btn.active');
+                if (currentActive) {
+                    currentActive.classList.remove('active');
+                }
                 // Add active class to clicked button
                 btn.classList.add('active');
                 
