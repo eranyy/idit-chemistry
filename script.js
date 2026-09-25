@@ -1,3 +1,8 @@
+// Global Constants
+const WHATSAPP_NUMBER = '972502719917';
+const ADMIN_WEB3FORMS_KEY = 'faf61723-a60d-463d-9f5a-8f45866c83af';
+const IDIT_WEB3FORMS_KEY = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
+
 // Escape hatch: reset accessibility settings via URL parameter (?reset=true or ?reset-accessibility=true)
 (function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -273,11 +278,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // URL Encode
                 const encodedText = encodeURIComponent(whatsappText);
-                const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
+                const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
                 
                 // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API in background
-                const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-                const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
                 
                 const emailSubject = `פנייה חדשה באתר מורה לכימיה - ${nameInput.value.trim()}`;
                 const emailBody = `פנייה חדשה התקבלה באתר:
@@ -298,8 +301,8 @@ ${customMessage}`;
                 };
 
                 // Dispatch to Admin & Idit
-                sendWeb3FormEmail({ ...emailParams, accessKey: adminKey, errorTag: "Admin" });
-                sendWeb3FormEmail({ ...emailParams, accessKey: iditKey, errorTag: "Idit" });
+                sendWeb3FormEmail({ ...emailParams, accessKey: ADMIN_WEB3FORMS_KEY, errorTag: "Admin" });
+                sendWeb3FormEmail({ ...emailParams, accessKey: IDIT_WEB3FORMS_KEY, errorTag: "Idit" });
                 
                 // Hide Form & Show Success Message
                 contactForm.style.display = 'none';
@@ -455,11 +458,9 @@ ${customMessage}`;
 💬 *המלצה:* ${text}`;
             
             const encodedText = encodeURIComponent(whatsappMsg);
-            const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
+            const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
             
             // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API
-            const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-            const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
             
             const emailSubject = `המלצה חדשה באתר מורה לכימיה - ${name}`;
             const emailBody = `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`;
@@ -473,8 +474,8 @@ ${customMessage}`;
             };
 
             // Dispatch to Admin & Idit
-            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: adminKey, errorTag: "Admin review" });
-            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: iditKey, errorTag: "Idit review" });
+            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: ADMIN_WEB3FORMS_KEY, errorTag: "Admin review" });
+            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: IDIT_WEB3FORMS_KEY, errorTag: "Idit review" });
             
             hideReviewModal();
             
@@ -967,7 +968,7 @@ ${customMessage}`;
                 `אשמח להתייעץ איתך ולבחון תיאום שיעור ניסיון! 🚀`
             );
 
-            const waUrl = `https://wa.me/972502719917?text=${waText}`;
+            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`;
 
             let html = `
                 <div class="quiz-result-box">
