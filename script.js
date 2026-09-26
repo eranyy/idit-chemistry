@@ -28,6 +28,30 @@ function sendWeb3FormEmail({ accessKey, subject, fromName, name, email, message,
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Virtual route & semantic anchor handling for SEO landing pages
+    (function handlePathRouting() {
+        const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
+        let targetId = null;
+
+        if (path.includes('chemistry-bagrut') || hash === '#chemistry-bagrut' || hash === '#bagrut') {
+            targetId = 'chemistry-bagrut';
+        } else if (path.includes('academic-chemistry') || hash === '#academic-chemistry' || hash === '#academic') {
+            targetId = 'academic-chemistry';
+        }
+
+        if (targetId) {
+            setTimeout(() => {
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    targetEl.classList.add('highlight-track');
+                    setTimeout(() => targetEl.classList.remove('highlight-track'), 2000);
+                }
+            }, 300);
+        }
+    })();
+
     
     // 1. Header scroll styling
     const header = document.getElementById('header');
@@ -176,13 +200,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const trackCards = document.querySelectorAll('.track-card');
     
+    let activeTabBtn = document.querySelector('.tab-btn.active');
+    
     if (tabBtns.length > 0 && trackCards.length > 0) {
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // Remove active class from all buttons
-                tabBtns.forEach(b => b.classList.remove('active'));
-                // Add active class to clicked button
-                btn.classList.add('active');
+                if (activeTabBtn !== btn) {
+                    if (activeTabBtn) activeTabBtn.classList.remove('active');
+                    btn.classList.add('active');
+                    activeTabBtn = btn;
+                }
                 
                 const target = btn.getAttribute('data-target');
                 
@@ -997,5 +1024,73 @@ ${customMessage}`;
             }
         });
     }
+
+    // 11. Live In-App Update Notifier Engine
+    (function initUpdateNotifier() {
+        let initialVersion = null;
+        let isBannerShown = false;
+
+        async function checkVersion() {
+            try {
+                const res = await fetch(`/version.json?t=${Date.now()}`, { cache: 'no-store' });
+                if (!res.ok) return;
+                const data = await res.json();
+                const serverVer = data?.version;
+
+                if (!serverVer) return;
+
+                if (!initialVersion) {
+                    initialVersion = serverVer;
+                } else if (initialVersion !== serverVer && !isBannerShown) {
+                    isBannerShown = true;
+                    showUpdateBanner();
+                }
+            } catch (e) {
+                // Silent catch
+            }
+        }
+
+        function showUpdateBanner() {
+            if (document.getElementById('versionUpdateBanner')) return;
+
+            const banner = document.createElement('div');
+            banner.id = 'versionUpdateBanner';
+            banner.className = 'version-update-banner';
+            banner.setAttribute('dir', 'rtl');
+            banner.innerHTML = `
+                <div class="version-banner-header">
+                    <div class="version-banner-title-box">
+                        <div class="version-banner-icon">✨</div>
+                        <div>
+                            <div class="version-banner-title">עדכון אתר זמין!</div>
+                            <div class="version-banner-text">גרסה חדשה ועדכנית שוחררה באתר. רענן לקבלת התוכן המעודכן.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="version-banner-actions">
+                    <button id="btnVersionRefresh" class="btn-version-refresh">רענן עכשיו 🔄</button>
+                    <button id="btnVersionClose" class="btn-version-close">מאוחר יותר</button>
+                </div>
+            `;
+            document.body.appendChild(banner);
+
+            document.getElementById('btnVersionRefresh')?.addEventListener('click', () => {
+                window.location.reload();
+            });
+
+            document.getElementById('btnVersionClose')?.addEventListener('click', () => {
+                banner.remove();
+            });
+        }
+
+        checkVersion();
+        setInterval(checkVersion, 60000);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                checkVersion();
+            }
+        });
+    })();
 });
+
 
