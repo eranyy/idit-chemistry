@@ -146,4 +146,75 @@ describe('script.js basic functionality', () => {
         btnContrast.click();
         expect(document.body.classList.contains('acc-contrast')).toBe(true);
     });
+
+    test('filters learning tracks based on selected tab', () => {
+        document.body.innerHTML += `
+            <div class="tabs-container">
+                <button class="tab-btn active" data-target="all">All</button>
+                <button class="tab-btn" data-target="math">Math</button>
+                <button class="tab-btn" data-target="science">Science</button>
+            </div>
+            <div class="tracks-container">
+                <div class="track-card" data-category="math">Math Track</div>
+                <div class="track-card" data-category="science">Science Track</div>
+                <div class="track-card" data-category="math">Advanced Math Track</div>
+            </div>
+        `;
+
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const trackCards = document.querySelectorAll('.track-card');
+
+        const allBtn = document.querySelector('.tab-btn[data-target="all"]');
+        const mathBtn = document.querySelector('.tab-btn[data-target="math"]');
+        const scienceBtn = document.querySelector('.tab-btn[data-target="science"]');
+
+        const mathCards = document.querySelectorAll('.track-card[data-category="math"]');
+        const scienceCards = document.querySelectorAll('.track-card[data-category="science"]');
+
+        // Initial state - clicking math
+        mathBtn.click();
+
+        // Validate buttons classes
+        expect(mathBtn.classList.contains('active')).toBe(true);
+        expect(allBtn.classList.contains('active')).toBe(false);
+        expect(scienceBtn.classList.contains('active')).toBe(false);
+
+        // Validate cards display
+        mathCards.forEach(card => {
+            expect(card.style.display).toBe('flex');
+        });
+        scienceCards.forEach(card => {
+            expect(card.style.display).toBe('none');
+        });
+
+        // Click science
+        scienceBtn.click();
+
+        // Validate buttons classes
+        expect(scienceBtn.classList.contains('active')).toBe(true);
+        expect(mathBtn.classList.contains('active')).toBe(false);
+
+        // Validate cards display
+        scienceCards.forEach(card => {
+            expect(card.style.display).toBe('flex');
+        });
+        mathCards.forEach(card => {
+            expect(card.style.display).toBe('none');
+        });
+
+        // Click all
+        allBtn.click();
+
+        // Validate buttons classes
+        expect(allBtn.classList.contains('active')).toBe(true);
+        expect(scienceBtn.classList.contains('active')).toBe(false);
+
+        // Validate cards display
+        trackCards.forEach(card => {
+            expect(card.style.display).toBe('flex');
+        });
+    });
 });
