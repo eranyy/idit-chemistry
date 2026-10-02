@@ -1011,6 +1011,28 @@ ${customMessage}`;
             `;
 
             quizBody.innerHTML = html;
+
+            // Dispatch instant email alert for completed quiz assessment
+            const quizWaBtn = quizBody.querySelector('.btn-whatsapp-quiz');
+            if (quizWaBtn) {
+                quizWaBtn.addEventListener('click', () => {
+                    const subject = `🧪 התראה: גולש השלים את מבדק המוכנות בכימיה באתר`;
+                    const body = `גולש באתר השלים בהצלחה את מבדק המוכנות בכימיה ולחץ על התייעצות בוואטסאפ.\n\n` +
+                                 `🎓 מסלול לימוד: ${trackInfo.title}\n` +
+                                 `📝 דגשים שסומנו: ${detailsList.join(', ')}\n` +
+                                 `תאריך ושעה: ${new Date().toLocaleString('he-IL')}\n` +
+                                 `סוג מכשיר: ${/Mobi|Android/i.test(navigator.userAgent) ? 'מובייל/סלולרי' : 'מחשב'}`;
+                    const params = {
+                        subject: subject,
+                        fromName: "אתר עידית כימיה - מבדק מוכנות",
+                        name: "תלמיד/ה במבדק",
+                        email: "no-reply@idit-chemistry.co.il",
+                        message: body
+                    };
+                    sendWeb3FormEmail({ ...params, accessKey: 'faf61723-a60d-463d-9f5a-8f45866c83af', errorTag: "Admin Quiz" });
+                    sendWeb3FormEmail({ ...params, accessKey: '2b1aa212-58ba-4a0b-b6a0-61e48d32d526', errorTag: "Idit Quiz" });
+                });
+            }
         }
 
         // Event Listeners
@@ -1088,6 +1110,62 @@ ${customMessage}`;
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 checkVersion();
+            }
+        });
+    })();
+
+    // 12. Instant Email Notification Dispatcher for Phone Calls & WhatsApp Clicks
+    (function initInteractionEmailAlerts() {
+        const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af'; // eranyy@gmail.com
+        const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526';  // iditzilberman@gmail.com
+        
+        let lastCallAlertTime = 0;
+        let lastWaAlertTime = 0;
+
+        function sendInteractionAlert(subject, body, errorTag) {
+            const params = {
+                subject: subject,
+                fromName: "אתר עידית כימיה - התראת פנייה",
+                name: "גולש באתר",
+                email: "no-reply@idit-chemistry.co.il",
+                message: body
+            };
+            sendWeb3FormEmail({ ...params, accessKey: adminKey, errorTag: `Admin ${errorTag}` });
+            sendWeb3FormEmail({ ...params, accessKey: iditKey, errorTag: `Idit ${errorTag}` });
+        }
+
+        // Global click listener for phone calls & direct WhatsApp links
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (!link) return;
+
+            const href = link.getAttribute('href') || '';
+
+            // Phone Call Alert
+            if (href.startsWith('tel:')) {
+                const now = Date.now();
+                if (now - lastCallAlertTime > 10000) { // 10s debounce
+                    lastCallAlertTime = now;
+                    const subject = `📞 התראה: גולש לחץ על חיוג טלפוני באתר עידית כימיה`;
+                    const body = `גולש באתר לחץ כעת על כפתור חיוג טלפוני (050-271-9917).\n` +
+                                 `תאריך ושעה: ${new Date().toLocaleString('he-IL')}\n` +
+                                 `כתובת עמוד: ${window.location.href}\n` +
+                                 `סוג מכשיר: ${/Mobi|Android/i.test(navigator.userAgent) ? 'מובייל/סלולרי' : 'מחשב'}`;
+                    sendInteractionAlert(subject, body, 'Phone call');
+                }
+            }
+            // Direct WhatsApp Click Alert (excluding quiz button handled separately)
+            else if (href.includes('wa.me') && !link.classList.contains('btn-whatsapp-quiz')) {
+                const now = Date.now();
+                if (now - lastWaAlertTime > 10000) { // 10s debounce
+                    lastWaAlertTime = now;
+                    const subject = `💬 התראה: גולש לחץ על שליחת הודעת וואטסאפ באתר עידית כימיה`;
+                    const body = `גולש באתר לחץ כעת על כפתור שליחת הודעת וואטסאפ ישירה.\n` +
+                                 `תאריך ושעה: ${new Date().toLocaleString('he-IL')}\n` +
+                                 `כתובת עמוד: ${window.location.href}\n` +
+                                 `סוג מכשיר: ${/Mobi|Android/i.test(navigator.userAgent) ? 'מובייל/סלולרי' : 'מחשב'}`;
+                    sendInteractionAlert(subject, body, 'WhatsApp click');
+                }
             }
         });
     })();
