@@ -7,8 +7,28 @@ const path = require('path');
 
 const scriptContent = fs.readFileSync(path.resolve(__dirname, '../script.js'), 'utf8');
 
+// Export the function to the global object specifically in the test environment
+const evalScript = () => {
+    eval(scriptContent + '\nwindow.sendWeb3FormEmail = sendWeb3FormEmail;');
+};
+
 describe('script.js basic functionality', () => {
+    let originalAddEventListener;
+    let addedListeners = [];
+
     beforeEach(() => {
+        addedListeners = [];
+        originalAddEventListener = document.addEventListener;
+        document.addEventListener = function(type, listener, options) {
+            addedListeners.push({ type, listener, options });
+            return originalAddEventListener.call(document, type, listener, options);
+        };
+
+        window.addEventListener = function(type, listener, options) {
+            addedListeners.push({ target: window, type, listener, options });
+            return EventTarget.prototype.addEventListener.call(window, type, listener, options);
+        };
+
         document.body.innerHTML = `
             <header id="header"></header>
             <span id="currentYear"></span>
@@ -22,15 +42,27 @@ describe('script.js basic functionality', () => {
         `;
     });
 
+    afterEach(() => {
+        addedListeners.forEach(({ target, type, listener, options }) => {
+            if (target === window) {
+                window.removeEventListener(type, listener, options);
+            } else {
+                document.removeEventListener(type, listener, options);
+            }
+        });
+        document.addEventListener = originalAddEventListener;
+        delete window.addEventListener;
+    });
+
     test('sets current year in footer', () => {
-        eval(scriptContent);
+        evalScript();
         document.dispatchEvent(new Event('DOMContentLoaded'));
         const currentYearSpan = document.getElementById('currentYear');
         expect(currentYearSpan.textContent).toBe(new Date().getFullYear().toString());
     });
 
     test('toggles mobile menu on click', () => {
-        eval(scriptContent);
+        evalScript();
         document.dispatchEvent(new Event('DOMContentLoaded'));
         const menuToggle = document.getElementById('menuToggle');
         const navMenu = document.getElementById('navMenu');
@@ -45,7 +77,7 @@ describe('script.js basic functionality', () => {
     });
 
     test('updates header scrolled class on window scroll', () => {
-        eval(scriptContent);
+        evalScript();
         document.dispatchEvent(new Event('DOMContentLoaded'));
         const header = document.getElementById('header');
 
@@ -59,7 +91,18 @@ describe('script.js basic functionality', () => {
     test('handles invalid JSON in localStorage accSettings gracefully', () => {
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         localStorage.setItem('accSettings', 'invalid json{');
-        eval(scriptContent);
+        document.body.innerHTML += `
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel" class=""></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnContrast" class=""></button>
+            <button id="btnEnlargeText"><span class="btn-label"></span></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
+        `;
+        evalScript();
         document.dispatchEvent(new Event('DOMContentLoaded'));
         expect(consoleSpy).toHaveBeenCalledWith("Error parsing accessibility settings", expect.any(SyntaxError));
         consoleSpy.mockRestore();
@@ -68,11 +111,11 @@ describe('script.js basic functionality', () => {
     test('handles fetch network error in contact form dispatch gracefully', async () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="0501234567" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="0501234567" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -80,7 +123,7 @@ describe('script.js basic functionality', () => {
         global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
         window.open = jest.fn();
 
-        eval(scriptContent);
+        evalScript();
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
         const form = document.getElementById('contactForm');
@@ -94,19 +137,19 @@ describe('script.js basic functionality', () => {
     test('validates contact form phone input edge cases correctly', () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="12345" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="12345" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
-        eval(scriptContent);
+        evalScript();
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
         const form = document.getElementById('contactForm');
-        const phoneInput = document.getElementById('contactPhone');
+        const phoneInput = document.getElementById('phoneInput');
 
         // Test short phone (< 9 digits)
         form.dispatchEvent(new Event('submit', { cancelable: true }));
@@ -119,7 +162,7 @@ describe('script.js basic functionality', () => {
     });
 
     test('updates opening status badge correctly based on time and day', () => {
-        eval(scriptContent);
+        evalScript();
         document.dispatchEvent(new Event('DOMContentLoaded'));
         const statusBadge = document.getElementById('openingStatus');
         expect(statusBadge).not.toBeNull();
@@ -129,11 +172,16 @@ describe('script.js basic functionality', () => {
     test('toggles accessibility floating panel and applies contrast setting', () => {
         document.body.innerHTML += `
             <button id="accessibilityToggle"></button>
-            <div id="accessibilityPanel"></div>
+            <div id="accessibilityPanel" class=""></div>
             <button id="accessibilityClose"></button>
-            <button id="btnContrast"></button>
+            <button id="btnContrast" class=""></button>
+            <button id="btnEnlargeText"><span class="btn-label"></span></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
         `;
-        eval(scriptContent);
+        evalScript();
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
         const accToggle = document.getElementById('accessibilityToggle');
@@ -145,5 +193,71 @@ describe('script.js basic functionality', () => {
 
         btnContrast.click();
         expect(document.body.classList.contains('acc-contrast')).toBe(true);
+    });
+});
+
+describe('sendWeb3FormEmail', () => {
+    let originalFetch;
+
+    beforeEach(() => {
+        originalFetch = global.fetch;
+        if (typeof window.sendWeb3FormEmail !== 'function') {
+             evalScript();
+        }
+    });
+
+    afterEach(() => {
+        global.fetch = originalFetch;
+        jest.restoreAllMocks();
+    });
+
+    test('resolves immediately if accessKey is not provided', async () => {
+        global.fetch = jest.fn();
+
+        const promise = window.sendWeb3FormEmail({ subject: 'Test' });
+        await expect(promise).resolves.toBeUndefined();
+        expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    test('calls fetch with correct parameters', async () => {
+        global.fetch = jest.fn().mockResolvedValue({ ok: true });
+
+        const params = {
+            accessKey: 'test-key',
+            subject: 'Test Subject',
+            fromName: 'Test Name',
+            name: 'Sender',
+            email: 'test@example.com',
+            message: 'Hello World'
+        };
+
+        await window.sendWeb3FormEmail(params);
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledWith('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                access_key: params.accessKey,
+                subject: params.subject,
+                from_name: params.fromName,
+                name: params.name,
+                email: params.email,
+                message: params.message
+            })
+        });
+    });
+
+    test('catches and logs errors on fetch failure', async () => {
+        const error = new Error('Fetch failed');
+        global.fetch = jest.fn().mockRejectedValue(error);
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        await window.sendWeb3FormEmail({
+            accessKey: 'test-key',
+            errorTag: 'TestTag'
+        });
+
+        expect(consoleSpy).toHaveBeenCalledWith('TestTag contact dispatch error:', error);
     });
 });
