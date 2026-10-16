@@ -8,8 +8,24 @@ const path = require('path');
 const scriptContent = fs.readFileSync(path.resolve(__dirname, '../script.js'), 'utf8');
 
 describe('script.js basic functionality', () => {
+
+    let listeners = [];
+    const originalDocAddEventListener = document.addEventListener;
+    const originalWinAddEventListener = window.addEventListener;
+
     beforeEach(() => {
+        listeners = [];
+        document.addEventListener = (type, listener, options) => {
+            listeners.push({ target: document, type, listener, options });
+            originalDocAddEventListener.call(document, type, listener, options);
+        };
+        window.addEventListener = (type, listener, options) => {
+            listeners.push({ target: window, type, listener, options });
+            originalWinAddEventListener.call(window, type, listener, options);
+        };
+
         document.body.innerHTML = `
+
             <header id="header"></header>
             <span id="currentYear"></span>
             <button id="menuToggle" aria-expanded="false"></button>
@@ -20,6 +36,18 @@ describe('script.js basic functionality', () => {
             </table>
             <div id="openingStatus"><span class="status-text"></span></div>
         `;
+    });
+
+
+    afterEach(() => {
+        listeners.forEach(({ target, type, listener, options }) => {
+            target.removeEventListener(type, listener, options);
+        });
+        document.addEventListener = originalDocAddEventListener;
+        window.addEventListener = originalWinAddEventListener;
+        document.body.innerHTML = '';
+        localStorage.clear();
+        jest.restoreAllMocks();
     });
 
     test('sets current year in footer', () => {
@@ -56,8 +84,21 @@ describe('script.js basic functionality', () => {
         expect(header).toBeDefined();
     });
 
+
     test('handles invalid JSON in localStorage accSettings gracefully', () => {
+        document.body.innerHTML += `
+            <button id="accessibilityToggle"></button>
+            <div id="accessibilityPanel"></div>
+            <button id="accessibilityClose"></button>
+            <button id="btnContrast"></button>
+            <button id="btnEnlargeText"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
+        `;
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
         localStorage.setItem('accSettings', 'invalid json{');
         eval(scriptContent);
         document.dispatchEvent(new Event('DOMContentLoaded'));
@@ -68,11 +109,11 @@ describe('script.js basic functionality', () => {
     test('handles fetch network error in contact form dispatch gracefully', async () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="0501234567" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="0501234567" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -94,11 +135,11 @@ describe('script.js basic functionality', () => {
     test('validates contact form phone input edge cases correctly', () => {
         document.body.innerHTML += `
             <form id="contactForm">
-                <input id="contactName" value="ישראל ישראלי" />
-                <input id="contactPhone" value="12345" />
-                <select id="contactLevel"><option value="bagrut5">בגרות 5 יח"ל</option></select>
-                <select id="contactFormat"><option value="online">אונליין</option></select>
-                <textarea id="contactMessage">שלום</textarea>
+                <input id="nameInput" value="ישראל ישראלי" />
+                <input id="phoneInput" value="12345" />
+                <select id="levelInput"><option value="bagrut5">בגרות 5 יח"ל</option></select>
+                <select id="formatInput"><option value="online">אונליין</option></select>
+                <textarea id="messageInput">שלום</textarea>
                 <div id="formFeedback"></div>
             </form>
         `;
@@ -106,7 +147,7 @@ describe('script.js basic functionality', () => {
         document.dispatchEvent(new Event('DOMContentLoaded'));
 
         const form = document.getElementById('contactForm');
-        const phoneInput = document.getElementById('contactPhone');
+        const phoneInput = document.getElementById('phoneInput');
 
         // Test short phone (< 9 digits)
         form.dispatchEvent(new Event('submit', { cancelable: true }));
@@ -132,6 +173,11 @@ describe('script.js basic functionality', () => {
             <div id="accessibilityPanel"></div>
             <button id="accessibilityClose"></button>
             <button id="btnContrast"></button>
+            <button id="btnEnlargeText"></button>
+            <button id="btnMonochrome"></button>
+            <button id="btnLinks"></button>
+            <button id="btnFont"></button>
+            <button id="btnReset"></button>
         `;
         eval(scriptContent);
         document.dispatchEvent(new Event('DOMContentLoaded'));
@@ -145,5 +191,70 @@ describe('script.js basic functionality', () => {
 
         btnContrast.click();
         expect(document.body.classList.contains('acc-contrast')).toBe(true);
+    });
+
+    test('shows cookie banner after delay and hides it on accept', () => {
+        jest.useFakeTimers();
+
+        document.body.innerHTML += `
+            <div id="cookieBanner" aria-hidden="true"></div>
+            <button id="acceptCookiesBtn"></button>
+        `;
+
+        // Ensure localStorage is clear
+        expect(localStorage.getItem('cookieConsentAccepted')).toBeNull();
+
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const cookieBanner = document.getElementById('cookieBanner');
+        const acceptCookiesBtn = document.getElementById('acceptCookiesBtn');
+
+        // Initially banner is not active
+        expect(cookieBanner.classList.contains('active')).toBe(false);
+        expect(cookieBanner.getAttribute('aria-hidden')).toBe('true');
+
+        // Fast forward 1.5 seconds
+        jest.advanceTimersByTime(1500);
+
+        // Banner should be active now
+        expect(cookieBanner.classList.contains('active')).toBe(true);
+        expect(cookieBanner.getAttribute('aria-hidden')).toBe('false');
+
+        // Click accept
+        acceptCookiesBtn.click();
+
+        // Banner should be hidden and localStorage set
+        expect(cookieBanner.classList.contains('active')).toBe(false);
+        expect(cookieBanner.getAttribute('aria-hidden')).toBe('true');
+        expect(localStorage.getItem('cookieConsentAccepted')).toBe('true');
+
+        jest.useRealTimers();
+    });
+
+    test('does not show cookie banner if already accepted', () => {
+        jest.useFakeTimers();
+
+        document.body.innerHTML += `
+            <div id="cookieBanner" aria-hidden="true"></div>
+            <button id="acceptCookiesBtn"></button>
+        `;
+
+        // Set already accepted in localStorage
+        localStorage.setItem('cookieConsentAccepted', 'true');
+
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const cookieBanner = document.getElementById('cookieBanner');
+
+        // Fast forward past the delay
+        jest.advanceTimersByTime(1500);
+
+        // Banner should still not be active
+        expect(cookieBanner.classList.contains('active')).toBe(false);
+        expect(cookieBanner.getAttribute('aria-hidden')).toBe('true');
+
+        jest.useRealTimers();
     });
 });
