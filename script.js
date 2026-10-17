@@ -10,8 +10,14 @@
     }
 })();
 
+// Centralized Configuration Constants
+const WHATSAPP_NUMBER = '972502719917';
+const ADMIN_WEB3_KEY = 'faf61723-a60d-463d-9f5a-8f45866c83af'; // eranyy@gmail.com
+const IDIT_WEB3_KEY = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526';  // iditzilberman@gmail.com
+const DEFAULT_SENDER_EMAIL = 'no-reply@idit-chemistry.co.il';
+
 // Reusable Web3Forms API email dispatch helper
-function sendWeb3FormEmail({ accessKey, subject, fromName, name, email, message, errorTag = "Admin" }) {
+function sendWeb3FormEmail({ accessKey, subject, fromName, name, email = DEFAULT_SENDER_EMAIL, message, errorTag = "Admin" }) {
     if (!accessKey) return Promise.resolve();
     return fetch('https://api.web3forms.com/submit', {
         method: 'POST',
@@ -300,11 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // URL Encode
                 const encodedText = encodeURIComponent(whatsappText);
-                const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
-                
-                // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API in background
-                const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-                const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
+                const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
                 
                 const emailSubject = `פנייה חדשה באתר מורה לכימיה - ${nameInput.value.trim()}`;
                 const emailBody = `פנייה חדשה התקבלה באתר:
@@ -320,13 +322,13 @@ ${customMessage}`;
                     subject: emailSubject,
                     fromName: "אתר עידית כימיה - פניות",
                     name: nameInput.value.trim(),
-                    email: "no-reply@idit-chemistry.co.il",
+                    email: DEFAULT_SENDER_EMAIL,
                     message: emailBody
                 };
 
                 // Dispatch to Admin & Idit
-                sendWeb3FormEmail({ ...emailParams, accessKey: adminKey, errorTag: "Admin" });
-                sendWeb3FormEmail({ ...emailParams, accessKey: iditKey, errorTag: "Idit" });
+                sendWeb3FormEmail({ ...emailParams, accessKey: ADMIN_WEB3_KEY, errorTag: "Admin" });
+                sendWeb3FormEmail({ ...emailParams, accessKey: IDIT_WEB3_KEY, errorTag: "Idit" });
                 
                 // Hide Form & Show Success Message
                 contactForm.style.display = 'none';
@@ -482,11 +484,7 @@ ${customMessage}`;
 💬 *המלצה:* ${text}`;
             
             const encodedText = encodeURIComponent(whatsappMsg);
-            const whatsappURL = `https://wa.me/972502719917?text=${encodedText}`;
-            
-            // Send email copy to Admin (eranyy@gmail.com) and Idit (iditzilberman@gmail.com) via Web3Forms API
-            const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af';
-            const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526'; // Replace with Web3Forms key for iditzilberman@gmail.com when available
+            const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
             
             const emailSubject = `המלצה חדשה באתר מורה לכימיה - ${name}`;
             const emailBody = `שם הממליץ: ${name}\nרמת לימוד: ${role}\nדירוג: ${rating}/5 כוכבים (${starString})\n\nתוכן ההמלצה:\n${text}`;
@@ -495,13 +493,13 @@ ${customMessage}`;
                 subject: emailSubject,
                 fromName: "אתר עידית כימיה - המלצות",
                 name: name,
-                email: "no-reply@idit-chemistry.co.il",
+                email: DEFAULT_SENDER_EMAIL,
                 message: emailBody
             };
 
             // Dispatch to Admin & Idit
-            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: adminKey, errorTag: "Admin review" });
-            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: iditKey, errorTag: "Idit review" });
+            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: ADMIN_WEB3_KEY, errorTag: "Admin review" });
+            sendWeb3FormEmail({ ...reviewEmailParams, accessKey: IDIT_WEB3_KEY, errorTag: "Idit review" });
             
             hideReviewModal();
             
@@ -874,6 +872,7 @@ ${customMessage}`;
         function renderTracksStep() {
             const grid = document.createElement('div');
             grid.className = 'quiz-options-grid';
+            const fragment = document.createDocumentFragment();
 
             tracksData.forEach(t => {
                 const card = document.createElement('div');
@@ -904,9 +903,10 @@ ${customMessage}`;
                     renderQuestionStep();
                 });
 
-                grid.appendChild(card);
+                fragment.appendChild(card);
             });
 
+            grid.appendChild(fragment);
             quizBody.replaceChildren(grid);
         }
 
@@ -928,6 +928,7 @@ ${customMessage}`;
 
             const grid = document.createElement('div');
             grid.className = 'quiz-options-grid';
+            const fragment = document.createDocumentFragment();
 
             currentQ.options.forEach((opt, idx) => {
                 const card = document.createElement('div');
@@ -958,9 +959,10 @@ ${customMessage}`;
                     }
                 });
 
-                grid.appendChild(card);
+                fragment.appendChild(card);
             });
 
+            grid.appendChild(fragment);
             quizBody.replaceChildren(grid);
         }
 
@@ -994,45 +996,58 @@ ${customMessage}`;
                 `אשמח להתייעץ איתך ולבחון תיאום שיעור ניסיון! 🚀`
             );
 
-            const waUrl = `https://wa.me/972502719917?text=${waText}`;
+            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`;
 
-            let html = `
-                <div class="quiz-result-box">
-                    <span class="quiz-badge">📊 דוח אבחון אישי</span>
-                    <div class="quiz-score-badge">🎯 סיכום אבחון והתאמה אישית</div>
-                    <div class="quiz-result-feedback">
-                        <strong>💡 ניתוח והמלצה של עידית:</strong><br>
-                        ${feedbackText}
-                    </div>
-                    <a href="${waUrl}" target="_blank" class="btn-whatsapp-quiz">
-                        💬 שליחת התוצאות והתייעצות מיידית עם עידית בוואטסאפ 🚀
-                    </a>
-                </div>
-            `;
+            const resultBox = document.createElement('div');
+            resultBox.className = 'quiz-result-box';
 
-            quizBody.innerHTML = html;
+            const badge = document.createElement('span');
+            badge.className = 'quiz-badge';
+            badge.textContent = '📊 דוח אבחון אישי';
 
-            // Dispatch instant email alert for completed quiz assessment
-            const quizWaBtn = quizBody.querySelector('.btn-whatsapp-quiz');
-            if (quizWaBtn) {
-                quizWaBtn.addEventListener('click', () => {
-                    const subject = `🧪 התראה: גולש השלים את מבדק המוכנות בכימיה באתר`;
-                    const body = `גולש באתר השלים בהצלחה את מבדק המוכנות בכימיה ולחץ על התייעצות בוואטסאפ.\n\n` +
-                                 `🎓 מסלול לימוד: ${trackInfo.title}\n` +
-                                 `📝 דגשים שסומנו: ${detailsList.join(', ')}\n` +
-                                 `תאריך ושעה: ${new Date().toLocaleString('he-IL')}\n` +
-                                 `סוג מכשיר: ${/Mobi|Android/i.test(navigator.userAgent) ? 'מובייל/סלולרי' : 'מחשב'}`;
-                    const params = {
-                        subject: subject,
-                        fromName: "אתר עידית כימיה - מבדק מוכנות",
-                        name: "תלמיד/ה במבדק",
-                        email: "no-reply@idit-chemistry.co.il",
-                        message: body
-                    };
-                    sendWeb3FormEmail({ ...params, accessKey: 'faf61723-a60d-463d-9f5a-8f45866c83af', errorTag: "Admin Quiz" });
-                    sendWeb3FormEmail({ ...params, accessKey: '2b1aa212-58ba-4a0b-b6a0-61e48d32d526', errorTag: "Idit Quiz" });
-                });
-            }
+            const scoreBadge = document.createElement('div');
+            scoreBadge.className = 'quiz-score-badge';
+            scoreBadge.textContent = '🎯 סיכום אבחון והתאמה אישית';
+
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'quiz-result-feedback';
+
+            const strongEl = document.createElement('strong');
+            strongEl.textContent = '💡 ניתוח והמלצה של עידית:';
+            feedbackDiv.appendChild(strongEl);
+            feedbackDiv.appendChild(document.createElement('br'));
+            feedbackDiv.appendChild(document.createTextNode(feedbackText));
+
+            const quizWaBtn = document.createElement('a');
+            quizWaBtn.href = waUrl;
+            quizWaBtn.target = '_blank';
+            quizWaBtn.className = 'btn-whatsapp-quiz';
+            quizWaBtn.textContent = '💬 שליחת התוצאות והתייעצות מיידית עם עידית בוואטסאפ 🚀';
+
+            quizWaBtn.addEventListener('click', () => {
+                const subject = `🧪 התראה: גולש השלים את מבדק המוכנות בכימיה באתר`;
+                const body = `גולש באתר השלים בהצלחה את מבדק המוכנות בכימיה ולחץ על התייעצות בוואטסאפ.\n\n` +
+                             `🎓 מסלול לימוד: ${trackInfo.title}\n` +
+                             `📝 דגשים שסומנו: ${detailsList.join(', ')}\n` +
+                             `תאריך ושעה: ${new Date().toLocaleString('he-IL')}\n` +
+                             `סוג מכשיר: ${/Mobi|Android/i.test(navigator.userAgent) ? 'מובייל/סלולרי' : 'מחשב'}`;
+                const params = {
+                    subject: subject,
+                    fromName: "אתר עידית כימיה - מבדק מוכנות",
+                    name: "תלמיד/ה במבדק",
+                    email: DEFAULT_SENDER_EMAIL,
+                    message: body
+                };
+                sendWeb3FormEmail({ ...params, accessKey: ADMIN_WEB3_KEY, errorTag: "Admin Quiz" });
+                sendWeb3FormEmail({ ...params, accessKey: IDIT_WEB3_KEY, errorTag: "Idit Quiz" });
+            });
+
+            resultBox.appendChild(badge);
+            resultBox.appendChild(scoreBadge);
+            resultBox.appendChild(feedbackDiv);
+            resultBox.appendChild(quizWaBtn);
+
+            quizBody.replaceChildren(resultBox);
         }
 
         // Event Listeners
@@ -1116,9 +1131,6 @@ ${customMessage}`;
 
     // 12. Instant Email Notification Dispatcher for Phone Calls & WhatsApp Clicks
     (function initInteractionEmailAlerts() {
-        const adminKey = 'faf61723-a60d-463d-9f5a-8f45866c83af'; // eranyy@gmail.com
-        const iditKey = '2b1aa212-58ba-4a0b-b6a0-61e48d32d526';  // iditzilberman@gmail.com
-        
         let lastCallAlertTime = 0;
         let lastWaAlertTime = 0;
 
@@ -1127,11 +1139,11 @@ ${customMessage}`;
                 subject: subject,
                 fromName: "אתר עידית כימיה - התראת פנייה",
                 name: "גולש באתר",
-                email: "no-reply@idit-chemistry.co.il",
+                email: DEFAULT_SENDER_EMAIL,
                 message: body
             };
-            sendWeb3FormEmail({ ...params, accessKey: adminKey, errorTag: `Admin ${errorTag}` });
-            sendWeb3FormEmail({ ...params, accessKey: iditKey, errorTag: `Idit ${errorTag}` });
+            sendWeb3FormEmail({ ...params, accessKey: ADMIN_WEB3_KEY, errorTag: `Admin ${errorTag}` });
+            sendWeb3FormEmail({ ...params, accessKey: IDIT_WEB3_KEY, errorTag: `Idit ${errorTag}` });
         }
 
         // Global click listener for phone calls & direct WhatsApp links

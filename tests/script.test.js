@@ -146,4 +146,63 @@ describe('script.js basic functionality', () => {
         btnContrast.click();
         expect(document.body.classList.contains('acc-contrast')).toBe(true);
     });
+
+    test('filters learning tracks on tab button click', () => {
+        document.body.innerHTML += `
+            <button class="tab-btn active" data-target="all">All</button>
+            <button class="tab-btn" data-target="bagrut">Bagrut</button>
+            <div class="track-card" data-category="bagrut"></div>
+            <div class="track-card" data-category="academic"></div>
+        `;
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const tabs = document.querySelectorAll('.tab-btn');
+        const cards = document.querySelectorAll('.track-card');
+
+        tabs[1].click();
+        expect(tabs[1].classList.contains('active')).toBe(true);
+        expect(tabs[0].classList.contains('active')).toBe(false);
+        expect(cards[0].style.display).toBe('flex');
+        expect(cards[1].style.display).toBe('none');
+    });
+
+    test('accepts cookie consent banner and persists to localStorage', () => {
+        document.body.innerHTML += `
+            <div id="cookieBanner" class="active" aria-hidden="false"></div>
+            <button id="acceptCookiesBtn"></button>
+        `;
+        localStorage.removeItem('cookieConsentAccepted');
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const cookieBanner = document.getElementById('cookieBanner');
+        const acceptBtn = document.getElementById('acceptCookiesBtn');
+
+        acceptBtn.click();
+        expect(localStorage.getItem('cookieConsentAccepted')).toBe('true');
+        expect(cookieBanner.classList.contains('active')).toBe(false);
+        expect(cookieBanner.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    test('opens certificate lightbox modal when auth-card is clicked', () => {
+        document.body.innerHTML += `
+            <div class="auth-card" data-cert="cert1.jpg" data-caption="M.Sc Certificate"></div>
+            <div id="certModal" aria-hidden="true"></div>
+            <img id="modalImg" />
+            <div id="modalCaption"></div>
+            <button id="closeModal"></button>
+        `;
+        eval(scriptContent);
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+
+        const card = document.querySelector('.auth-card');
+        const certModal = document.getElementById('certModal');
+        const modalImg = document.getElementById('modalImg');
+
+        card.click();
+        expect(certModal.style.display).toBe('block');
+        expect(certModal.getAttribute('aria-hidden')).toBe('false');
+        expect(modalImg.getAttribute('src')).toContain('cert1.jpg');
+    });
 });
