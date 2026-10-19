@@ -540,6 +540,14 @@ ${customMessage}`;
             accPanel.setAttribute('aria-hidden', 'true');
         });
 
+        // Close on click outside
+        document.addEventListener('click', (e) => {
+            if (accPanel.classList.contains('active') && !accPanel.contains(e.target) && !accToggle.contains(e.target)) {
+                accPanel.classList.remove('active');
+                accPanel.setAttribute('aria-hidden', 'true');
+            }
+        });
+
         // Close on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && accPanel.classList.contains('active')) {

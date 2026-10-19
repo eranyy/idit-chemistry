@@ -1961,7 +1961,7 @@ footer a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    z-index: 10005;
     transition: var(--transition);
 }
 
@@ -1979,7 +1979,7 @@ footer a:hover {
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
     border: 1px solid rgba(15, 32, 66, 0.1);
-    z-index: 9998;
+    z-index: 10006;
     overflow: hidden;
     transform: translateY(20px);
     opacity: 0;
