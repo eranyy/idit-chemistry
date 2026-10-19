@@ -1167,196 +1167,38 @@ a.audience-pill:hover {
     display: block;
 }
 
-/* Featured Real WhatsApp Screenshot Spotlight */
-.featured-wa-case {
-    display: grid;
-    grid-template-columns: 1.35fr 0.65fr;
-    gap: 2.5rem;
-    align-items: center;
-    background: linear-gradient(135deg, #FFFFFF 0%, #F0FDFB 100%);
-    border: 1.5px solid rgba(0, 180, 159, 0.25);
-    border-radius: 24px;
-    padding: 2.5rem 3rem;
-    margin-bottom: 3rem;
-    box-shadow: 0 10px 35px rgba(0, 180, 159, 0.08);
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.featured-wa-case:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 45px rgba(0, 180, 159, 0.16);
-    border-color: var(--accent);
-}
-
-.featured-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(37, 211, 102, 0.12);
-    color: #128C7E;
-    border: 1px solid rgba(37, 211, 102, 0.3);
-    padding: 0.35rem 1rem;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-}
-
-.featured-wa-title {
-    font-family: 'Rubik', sans-serif;
-    font-size: 1.85rem;
-    font-weight: 800;
-    color: var(--primary);
-    margin-bottom: 0.75rem;
-    line-height: 1.25;
-}
-
-.featured-wa-desc {
-    font-size: 1.05rem;
-    color: var(--text-dark);
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-}
-
-.featured-grades-timeline {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 16px;
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-}
-
-.grade-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.grade-step .step-num {
-    font-family: 'Rubik', sans-serif;
-    font-size: 1.35rem;
-    font-weight: 900;
-    color: #64748B;
-    line-height: 1;
-}
-
-.grade-step .step-lbl {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 0.2rem;
-}
-
-.grade-arrow {
-    color: var(--accent);
-    font-weight: 800;
-    font-size: 1.1rem;
-}
-
-.grade-step.grade-final .step-num {
-    color: #10B981;
-    font-size: 1.6rem;
-}
-
-.grade-step.grade-final .step-lbl {
-    color: #059669;
-    font-weight: 700;
-}
-
-.featured-wa-quote {
-    background: rgba(15, 32, 66, 0.04);
-    border-right: 4px solid var(--accent);
-    padding: 0.85rem 1.25rem;
-    border-radius: 0 12px 12px 0;
-    margin-bottom: 1.25rem;
-}
-
-.featured-wa-quote em {
-    display: block;
-    font-style: italic;
-    font-size: 1.05rem;
-    color: var(--primary);
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.featured-wa-quote strong {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-}
-
-.click-to-zoom-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--accent-dark);
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-.featured-wa-preview {
-    position: relative;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-    border: 3px solid #FFFFFF;
-    max-width: 260px;
-    margin: 0 auto;
-}
-
-.featured-wa-preview img {
-    width: 100%;
-    height: auto;
-    display: block;
-    transition: transform 0.3s ease;
-}
-
-.featured-wa-case:hover .featured-wa-preview img {
-    transform: scale(1.03);
-}
-
-.preview-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(15, 32, 66, 0.45);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    color: #FFFFFF;
-    font-weight: 700;
-    font-size: 0.9rem;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-}
-
-.featured-wa-case:hover .preview-overlay {
-    opacity: 1;
-}
-
-@media (max-width: 900px) {
-    .featured-wa-case {
-        grid-template-columns: 1fr;
-        padding: 2rem 1.5rem;
-        gap: 2rem;
-    }
-    .featured-wa-preview {
-        max-width: 220px;
-    }
-}
-
-/* Social Proof Section */
+/* Social Proof Section - Uniform WhatsApp Testimonials Grid */
 .testimonials-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
     margin-bottom: 3.5rem;
+}
+
+.wa-screenshot-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #F0FDFB;
+    border: 1px solid rgba(0, 180, 159, 0.3);
+    color: #008775;
+    padding: 0.45rem 0.95rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-top: auto;
+    margin-bottom: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+}
+
+.wa-screenshot-pill:hover {
+    background: #00B49F;
+    color: #FFFFFF;
+    border-color: #00B49F;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 180, 159, 0.25);
 }
 
 .testimonial-card {
