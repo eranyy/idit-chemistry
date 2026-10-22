@@ -3,6 +3,7 @@ verify_site.py
 task.md
 walkthrough.md
 implementation_plan.md
+backup_*/
 
 # Firebase configs that might be generated locally
 .firebase/
