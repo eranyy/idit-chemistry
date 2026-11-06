@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-G0DTPLC1Z5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-G0DTPLC1Z5');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="מדריך מעשי לפתרון שאלות סטוכיומטריה בכימיה לבגרות (5 יח'ל) ולמכינות קדם-אקדמיות. ניסוח תגובות, המרה למולים, זיהוי מגיב מגביל וסידור בטבלה. מאת עידית.">
+    <meta name="keywords" content="סטוכיומטריה, חישובים סטוכיומטריים בכימיה, מגיב מגביל, בגרות בכימיה 5 יחידות, מורה פרטית לכימיה, עידית מורה לכימיה, טבלה סטוכיומטרית">
+    <title>איך לפתור שאלות סטוכיומטריה בכימיה | מדריך מעשי לבגרות ומכינות | עידית</title>
+    
+    <!-- Canonical & Social Metadata -->
+    <link rel="canonical" href="https://idit-chemistry-tutor.web.app/guides/stoichiometry">
+    <meta property="og:title" content="איך לפתור שאלות סטוכיומטריה בכימיה | מדריך מעשי | עידית">
+    <meta property="og:description" content="הסבר מובנה ומדויק על עקרונות העבודה בחישובים סטוכיומטריים, זיהוי המגיב המגביל ופתרון שאלה לדוגמה באמצעות טבלה מסודרת. מאת עידית (M.Sc. מכון ויצמן).">
+    <meta property="og:url" content="https://idit-chemistry-tutor.web.app/guides/stoichiometry">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="he_IL">
+    <meta property="og:site_name" content="עידית – מורה פרטית לכימיה">
+    <meta property="og:image" content="https://idit-chemistry-tutor.web.app/assets/pomelli_og.jpg">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1024">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="איך לפתור שאלות סטוכיומטריה בכימיה | עידית">
+    <meta name="twitter:description" content="מדריך מעשי לפתרון שאלות סטוכיומטריה בכימיה לבגרות ולמכינות מאת עידית – מורה פרטית לכימיה.">
+    <meta name="twitter:image" content="https://idit-chemistry-tutor.web.app/assets/pomelli_og.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="../style.css?v=2.8.3">
+
+    <style>
+        .article-page {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .article-wrapper {
+            padding: 2.5rem 0 5rem;
+        }
+
+        .article-card {
+            background: #FFFFFF;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(15, 32, 66, 0.08);
+            box-shadow: var(--shadow-md);
+            padding: 3.5rem 3rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .article-card {
+                padding: 2rem 1.5rem;
+                border-radius: var(--radius-sm);
+            }
+            .article-wrapper {
+                padding: 1.5rem 0 3.5rem;
+            }
+        }
+
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.75rem;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumbs a {
+            color: var(--primary-light);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .breadcrumbs a:hover {
+            color: var(--accent);
+        }
+
+        .article-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-badge {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--accent-dark);
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.35rem 0.85rem;
+            border-radius: 50px;
+        }
+
+        .article-title {
+            font-family: 'Rubik', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.3;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-author-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #E2E8F0;
+            margin-bottom: 2.5rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .author-avatar-small {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            color: var(--accent-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: 2px solid var(--accent);
+        }
+
+        .article-body h2 {
+            font-family: 'Rubik', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 2.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-light);
+        }
+
+        .article-body h3 {
+            font-family: 'Rubik', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-light);
+            margin: 1.75rem 0 0.75rem;
+        }
+
+        .article-body p {
+            font-size: 1.125rem;
+            line-height: 1.85;
+            margin-bottom: 1.35rem;
+            color: var(--text-dark);
+        }
+
+        .article-body ul, .article-body ol {
+            margin: 1rem 1.75rem 1.5rem 0;
+            font-size: 1.125rem;
+            line-height: 1.85;
+        }
+
+        .article-body li {
+            margin-bottom: 0.5rem;
+        }
+
+        .article-lead {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-right: 4px solid var(--accent);
+            padding-right: 1.25rem;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            background: #F8FAFC;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .formula-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.25rem;
+            margin: 1.75rem 0;
+        }
+
+        .formula-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: var(--radius-sm);
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .formula-card-title {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .formula-card-math {
+            font-family: 'Rubik', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--primary);
+            direction: ltr;
+            margin-bottom: 0.25rem;
+        }
+
+        .callout-box {
+            background: #F8FAFC;
+            border-right: 4px solid var(--accent);
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-sm);
+            margin: 1.75rem 0;
+        }
+
+        .callout-box.warning {
+            background: #FFFBEB;
+            border-right-color: #F59E0B;
+        }
+
+        .callout-title {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin: 1.75rem 0;
+            border-radius: var(--radius-sm);
+            border: 1px solid #E2E8F0;
+        }
+
+        .stoich-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 1.05rem;
+        }
+
+        .stoich-table th {
+            background: var(--primary);
+            color: #FFFFFF;
+            padding: 0.9rem 1rem;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 600;
+        }
+
+        .stoich-table td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .stoich-table tr:nth-child(even) td {
+            background: #F8FAFC;
+        }
+
+        .stoich-table tr.highlight-check td {
+            background: #FEF3C7;
+            font-weight: 600;
+        }
+
+        .stoich-table tr.highlight-final td {
+            background: var(--accent-light);
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .reaction-banner {
+            background: #F1F5F9;
+            border: 1px solid #CBD5E1;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-family: 'Rubik', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            direction: ltr;
+            margin: 1.25rem 0;
+        }
+
+        .article-cta-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: var(--radius-md);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #FFFFFF;
+            margin-top: 3.5rem;
+        }
+
+        .article-cta-box h3 {
+            color: #FFFFFF;
+            font-size: 1.75rem;
+            font-family: 'Rubik', sans-serif;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-cta-box p {
+            color: #E2E8F0;
+            font-size: 1.15rem;
+            max-width: 600px;
+            margin: 0 auto 1.75rem;
+        }
+
+        .article-cta-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-wa-article {
+            background: #25D366;
+            color: #FFFFFF;
+            padding: 0.85rem 1.85rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);
+            transition: var(--transition);
+        }
+
+        .btn-wa-article:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+        }
+
+        .btn-call-article {
+            background: transparent;
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 0.85rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-call-article:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+
+    <!-- Structured Data (Article & HowTo Schema for GEO / AI Citations) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "@id": "https://idit-chemistry-tutor.web.app/guides/stoichiometry#article",
+          "headline": "מדריך לפתרון שאלות סטוכיומטריה בכימיה",
+          "description": "הסבר מובנה ומדויק על עקרונות העבודה בחישובים סטוכיומטריים, זיהוי המגיב המגביל וסידור בטבלה מסודרת.",
+          "inLanguage": "he-IL",
+          "author": {
+            "@type": "Person",
+            "name": "עידית",
+            "jobTitle": "מורה פרטית לכימיה ומומחית בהוראת המדעים",
+            "url": "https://idit-chemistry-tutor.web.app/#teacher"
+          },
+          "publisher": {
+            "@type": "EducationalOrganization",
+            "name": "עידית – מורה פרטית לכימיה",
+            "url": "https://idit-chemistry-tutor.web.app"
+          },
+          "image": "https://idit-chemistry-tutor.web.app/assets/pomelli_og.jpg",
+          "datePublished": "2026-11-06",
+          "dateModified": "2026-11-06",
+          "mainEntityOfPage": "https://idit-chemistry-tutor.web.app/guides/stoichiometry"
+        },
+        {
+          "@type": "HowTo",
+          "@id": "https://idit-chemistry-tutor.web.app/guides/stoichiometry#howto",
+          "name": "כיצד לפתור שאלת סטוכיומטריה בכימיה",
+          "description": "ארבעת השלבים המובנים לפתרון חישובים סטוכיומטריים בכימיה לבגרות ולמכינות קדם-אקדמיות.",
+          "step": [
+            {
+              "@type": "HowToStep",
+              "name": "ניסוח ואיזון התהליך הכימי",
+              "text": "מוודאים שניסוח התגובה מאוזן לפי חוק שימור המסה באמצעות הוספת מקדמים סטוכיומטריים בלבד."
+            },
+            {
+              "@type": "HowToStep",
+              "name": "מעבר לכמות חומר במולים",
+              "text": "ממירים את כל הנתונים של מסה, נפח או ריכוז למולים (n) בהתאם למצב הצבירה."
+            },
+            {
+              "@type": "HowToStep",
+              "name": "זיהוי המגיב המגביל",
+              "text": "מחלקים את מולי המגיבים במקדמים שלהם. המגיב בעל היחס הקטן ביותר הוא המגיב המגביל המכתיב את כמות התוצר."
+            },
+            {
+              "@type": "HowToStep",
+              "name": "סידור הנתונים בטבלה סטוכיומטרית",
+              "text": "מציבים את הנתונים בטבלה של התחלה, שינוי וסוף, ומחשבים את כמות התוצר הנדרשת."
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "דף הבית",
+              "item": "https://idit-chemistry-tutor.web.app/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "מדריכים",
+              "item": "https://idit-chemistry-tutor.web.app/#guides"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "מדריך סטוכיומטריה",
+              "item": "https://idit-chemistry-tutor.web.app/guides/stoichiometry"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="article-page">
+
+    <!-- Header Navigation -->
+    <header id="header" class="scrolled">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="../index.html" class="logo-link">
+                    <div class="logo-icon">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 21a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2C2 12 12 2 12 2s10 10 10 19z"/><path d="M12 22V11"/><path d="M7 15h10"/></svg>
+                    </div>
+                    <div class="logo-text">
+                        <span class="brand-name">עידית</span>
+                        <span class="logo-tagline">כימיה בגובה העיניים</span>
+                    </div>
+                </a>
+                
+                <ul class="nav-menu">
+                    <li><a href="../index.html#tracks" class="nav-link">מסלולי לימוד</a></li>
+                    <li><a href="../index.html#methodology" class="nav-link">שיטת הלימוד</a></li>
+                    <li><a href="../index.html#guides" class="nav-link active">מדריכים</a></li>
+                    <li><a href="../index.html#location" class="nav-link">שעות ומיקום</a></li>
+                    <li><a href="../index.html#testimonials" class="nav-link">המלצות</a></li>
+                    <li><a href="../index.html#contact" class="nav-link">צור קשר</a></li>
+                </ul>
+
+                <a href="tel:050-271-9917" class="nav-contact-badge">
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <span>050-271-9917</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="article-wrapper">
+        <div class="container">
+            <article class="article-card">
+                
+                <!-- Breadcrumbs -->
+                <nav class="breadcrumbs" aria-label="פירורי לחם">
+                    <a href="../index.html">דף הבית</a>
+                    <span>&rsaquo;</span>
+                    <a href="../index.html#guides">מדריכים</a>
+                    <span>&rsaquo;</span>
+                    <span aria-current="page">מדריך סטוכיומטריה</span>
+                </nav>
+
+                <!-- Badges -->
+                <div class="article-badge-row">
+                    <span class="article-badge">הכנה לבגרות (5 יח')</span>
+                    <span class="article-badge">מכינות קדם-אקדמיות</span>
+                    <span class="article-badge">סטוכיומטריה מעשית</span>
+                </div>
+
+                <h1 class="article-title">מדריך לפתרון שאלות סטוכיומטריה בכימיה</h1>
+
+                <!-- Author Meta -->
+                <div class="article-author-meta">
+                    <div class="author-avatar-small">ע</div>
+                    <div>
+                        <strong>מאת: עידית – מורה פרטית לכימיה</strong>
+                        <div>תואר שני M.Sc. בהוראת המדעים, מכון ויצמן למדע</div>
+                    </div>
+                </div>
+
+                <!-- Body Content -->
+                <div class="article-body">
+                    
+                    <p class="article-lead">
+                        הסבר מובנה ומדויק על עקרונות העבודה בחישובים סטוכיומטריים, זיהוי המגיב המגביל ופתרון שאלה לדוגמה באמצעות טבלה מסודרת – שלב אחר שלב.
+                    </p>
+
+                    <h2>מבוא: כיצד לגשת לחישובים סטוכיומטריים?</h2>
+                    <p>
+                        במהלך שנות ההוראה וההכנה לבגרות, אני פוגשת תלמידים וסטודנטים רבים שמהססים כשהם מגיעים לפרק הסטוכיומטריה. המעבר מהבנת התופעות המדעיות אל חישובים כמותיים המשלבים מולים, מסות, נפחים וריכוזים מעורר לעיתים קרובות חשש מיותר.
+                    </p>
+                    <p>
+                        למעשה, סטוכיומטריה היא כלי עבודה מסודר ומדויק. בדיוק כפי שבמתכון אפייה יש יחס מוגדר וכמותי בין המרכיבים (כמו יחס בין כוסות קמח למספר ביצים), כך גם בכימיה – יחסי המקדמים בניסוח התגובה קובעים את היחס המדויק בין המגיבים לבין התוצרים.
+                    </p>
+                    <p>
+                        כאשר מבינים את ההיגיון העומד מאחורי כל שלב, החישוב הופך לפשוט, ישיר וברור.
+                    </p>
+
+                    <h2>ארבעת השלבים לפתרון מסודר של שאלת סטוכיומטריה</h2>
+
+                    <h3>שלב 1: ניסוח ואיזון התהליך הכימי (שפת הכימאים)</h3>
+                    <p>
+                        לפני שניגשים לחישוב מתמטי כלשהו, יש לוודא שניסוח התגובה מאוזן על פי <strong>חוק שימור המסה</strong>:
+                    </p>
+                    <ul>
+                        <li>מוודאים שמספר האטומים מכל סוג זהה בצד המגיבים ובצד התוצרים.</li>
+                    </ul>
+                    <div class="callout-box warning">
+                        <div class="callout-title">דגש חשוב באיזון:</div>
+                        הנוסחה הכימית נקבעת על פי הרכב החומר (לדוגמה: מולקולת מים נכתבת תמיד <code>H₂O</code>).<br>
+                        לפיכך, אין לשנות את האינדקסים המספריים בתוך הנוסחה, אלא <strong>להוסיף מקדמים סטוכיומטריים בלבד</strong> לפני הנוסחאות הכימיות.
+                    </div>
+
+                    <h3>שלב 2: מעבר לכמות חומר במולים (n)</h3>
+                    <p>
+                        חישובים סטוכיומטריים מתבצעים <strong>אך ורק באמצעות יחסי מולים</strong>. נתונים של מסה, נפח או ריכוז יש להמיר תחילה לכמות חומר במולים לפי מצב הצבירה של החומר:
+                    </p>
+
+                    <div class="formula-grid">
+                        <div class="formula-card">
+                            <div class="formula-card-title">מוצק / מסה</div>
+                            <div class="formula-card-math">n = m / Mw</div>
+                            <small style="color:var(--text-muted);">מסה (גרם) ÷ מסה מולרית (גרם/מול)</small>
+                        </div>
+                        <div class="formula-card">
+                            <div class="formula-card-title">תמיסה / נוזל</div>
+                            <div class="formula-card-math">n = C &times; V</div>
+                            <small style="color:var(--text-muted);">ריכוז מולרי (M) &times; נפח (ליטר)</small>
+                        </div>
+                        <div class="formula-card">
+                            <div class="formula-card-title">גז</div>
+                            <div class="formula-card-math">n = V / Vm</div>
+                            <small style="color:var(--text-muted);">נפח הגז ÷ נפח מולרי (Vm הנתון)</small>
+                        </div>
+                    </div>
+                    <p style="font-size:0.95rem; color:var(--text-muted);">
+                        * <strong>הערה:</strong> כאשר נתון נפח במיליליטרים (מ"ל), חובה להמירו לליטרים (חלוקה ב-1,000) לפני ההצבה בנוסחה.
+                    </p>
+
+                    <h3>שלב 3: זיהוי המגיב המגביל</h3>
+                    <p>
+                        כאשר בשאלה נתונות כמויות של שני מגיבים שונים, עלינו לבדוק האם הם נמצאים ביחס מדויק או שאחד מהם יאזל ראשון במהלך התגובה. החומר שאוזל ראשון נקרא <strong>מגיב מגביל</strong> (Limiting Reactant). המגיב המגביל קובע את כמות התוצרים המרבית שתוכל להיווצר בתגובה. המגיב שאינו מגביל את התגובה – יישאר בעודף.
+                    </p>
+                    <div class="callout-box">
+                        <div class="callout-title">כיצד מוצאים את המגיב המגביל?</div>
+                        1. מחלקים את מספר המולים שחושב עבור כל מגיב במקדם הסטוכיומטרי שלו בניסוח התגובה המאוזן.<br>
+                        2. המגיב שעבורו התקבל הערך הקטן ביותר הוא המגיב המגביל.<br>
+                        3. המשך החישוב של התוצרים והחומרים שנצרכו מתבסס תמיד על כמות המגיב המגביל בלבד.
+                    </div>
+
+                    <h3>שלב 4: סידור הנתונים בטבלה סטוכיומטרית</h3>
+                    <p>
+                        כדי לארגן את הפתרון בצורה ברורה ולמנוע שגיאות חישוב, מסדרים את הנתונים בטבלה מסודרת המבוססת על שלושה מדדים עיקריים:
+                    </p>
+                    <ol>
+                        <li><strong>מספר המולים ההתחלתי:</strong> כמויות המולים של המגיבים שהוכנסו לכלי בתחילת התהליך (בשלב זה כמות התוצרים היא 0).</li>
+                        <li><strong>מספר המולים שהגיבו ונוצרו:</strong> השינוי שחל בכמויות החומרים במהלך התגובה. <strong>שורה זו נקבעת אך ורק לפי יחסי המקדמים הסטוכיומטריים מול המגיב המגביל</strong>.</li>
+                        <li><strong>מספר המולים שנותרו בסיום:</strong> הכמות הסופית של כל חומר בתום התגובה (המגיב המגביל מתאפס ונצרך במלואו, המגיב שאינו מגביל את התגובה יישאר בעודף, והתוצרים מופיעים בכמות שנוצרה).</li>
+                    </ol>
+                    <p>
+                        לאחר קבלת מספר המולים שנותרו בסיום, ממירים את כמות התוצר למסה, לנפח או לריכוז, בהתאם לדרישת השאלה.
+                    </p>
+
+                    <h2>דוגמה מעשית לפתרון שאלה: שריפת גז פרופאן</h2>
+                    <div class="callout-box">
+                        <strong>ניסוח השאלה:</strong><br>
+                        מבצעים שריפה מלאה של 44 גרם גז פרופאן (C<sub>3</sub>H<sub>8</sub>) בנוכחות 128 גרם גז חמצן (O<sub>2</sub>).<br>
+                        <strong>חשבו את מסת המים (H<sub>2</sub>O) שתתקבל בתום התגובה.</strong>
+                    </div>
+
+                    <h3>מהלך הפתרון:</h3>
+
+                    <p><strong>1. ניסוח ואיזון התגובה:</strong></p>
+                    <div class="reaction-banner">
+                        C<sub>3</sub>H<sub>8(g)</sub> + 5O<sub>2(g)</sub> &rarr; 3CO<sub>2(g)</sub> + 4H<sub>2</sub>O<sub>(l)</sub>
+                    </div>
+
+                    <p style="margin-top:1.5rem;"><strong>2. המרת הנתונים לכמות חומר במולים:</strong></p>
+                    <ul>
+                        <li>מסה מולרית של פרופאן: <code>Mw = (3&times;12) + (8&times;1) = 44 g/mol</code> &rarr; <strong>n(פרופאן) = 44 g / 44 g/mol = 1 mol</strong></li>
+                        <li>מסה מולרית של חמצן: <code>Mw = 2&times;16 = 32 g/mol</code> &rarr; <strong>n(חמצן) = 128 g / 32 g/mol = 4 mol</strong></li>
+                    </ul>
+
+                    <p style="margin-top:1.5rem;"><strong>3. ארגון הנתונים ומציאת המגיב המגביל בטבלה:</strong></p>
+
+                    <div class="table-responsive">
+                        <table class="stoich-table">
+                            <thead>
+                                <tr>
+                                    <th>שלב בחישוב</th>
+                                    <th>C<sub>3</sub>H<sub>8(g)</sub></th>
+                                    <th>5O<sub>2(g)</sub></th>
+                                    <th>3CO<sub>2(g)</sub></th>
+                                    <th>4H<sub>2</sub>O<sub>(l)</sub></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>יחס מקדמים</strong></td>
+                                    <td>1</td>
+                                    <td>5</td>
+                                    <td>3</td>
+                                    <td>4</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>מספר מולים התחלתי</strong></td>
+                                    <td>1 mol</td>
+                                    <td>4 mol</td>
+                                    <td>0 mol</td>
+                                    <td>0 mol</td>
+                                </tr>
+                                <tr class="highlight-check">
+                                    <td><strong>בדיקת מגיב מגביל</strong></td>
+                                    <td>1 / 1 = 1</td>
+                                    <td>4 / 5 = <strong>0.8</strong> (ערך קטן יותר)</td>
+                                    <td>&mdash;</td>
+                                    <td>&mdash;</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>מספר המולים שהגיבו ונוצרו</strong></td>
+                                    <td>-0.8 mol</td>
+                                    <td>-4 mol (אוזל לחלוטין)</td>
+                                    <td>+2.4 mol</td>
+                                    <td>+3.2 mol</td>
+                                </tr>
+                                <tr class="highlight-final">
+                                    <td><strong>מספר המולים שנותרו בסיום</strong></td>
+                                    <td>0.2 mol (עודף)</td>
+                                    <td>0 mol</td>
+                                    <td>2.4 mol</td>
+                                    <td>3.2 mol</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p><strong>הסבר מתוך הטבלה:</strong></p>
+                    <ul>
+                        <li>החמצן קיבל את היחס הקטן ביותר (0.8 &lt; 1), ולכן <strong>החמצן הוא המגיב המגביל</strong>. הוא מגיב במלואו (4 מולים נצרכים, ונותרו 0 מולים).</li>
+                        <li>כמות הפרופאן שנצרכה היא: <code>0.8 &times; 1 = 0.8 mol</code>. לכן בסיום נותרו: <code>1 - 0.8 = 0.2 mol</code> של פרופאן שלא הגיב (נמצא בעודף).</li>
+                        <li>כמות המים שנוצרה היא: <code>0.8 &times; 4 = 3.2 mol</code>.</li>
+                    </ul>
+
+                    <p style="margin-top:1.5rem;"><strong>4. חישוב מסת המים (מענה לדרישת השאלה):</strong></p>
+                    <ul>
+                        <li>מסה מולרית של מים: <code>Mw(H<sub>2</sub>O) = 18 g/mol</code></li>
+                        <li>מסה: <code>m(H<sub>2</sub>O) = 3.2 mol &times; 18 g/mol = </code> <strong style="color:var(--accent); font-size:1.25rem;">57.6 גרם מים</strong></li>
+                    </ul>
+                    <p>
+                        <strong>תשובה:</strong> בתום התגובה יתקבלו <strong>57.6 גרם</strong> מים.
+                    </p>
+
+                    <h2>דגשים לתשובה מדויקת ומניעת שגיאות</h2>
+                    <ul>
+                        <li><strong>חישוב מסה מולרית של יסוד במקום מולקולה:</strong> גז חמצן מופיע כמולקולה דו-אטומית (O<sub>2</sub>), ולכן מסתו המולרית היא 32 גרם למול ולא 16.</li>
+                        <li><strong>המרת יחידות נפח:</strong> בנוסחה של תמיסות (n = C &middot; V), הנפח חייב להיות בליטרים. שכחה להמיר מיליליטר לליטר היא מקור שכיח לשגיאות חישוב.</li>
+                        <li><strong>התעלמות מקיומו של מגיב מגביל:</strong> בכל שאלה שבה נתונות כמויות של שני מגיבים, יש לבצע בדיקת מגיב מגביל ולא להניח שהיחס ביניהם מדויק.</li>
+                        <li><strong>רישום יחידות מידה:</strong> בבחינת הבגרות נדרשת דרך פתרון מלאה ומנומקת, הכוללת יחידות מידה ברורות ליד כל ערך מספרי.</li>
+                    </ul>
+
+                    <!-- Article CTA Box -->
+                    <div class="article-cta-box">
+                        <h3>לסיכום והכוונה אישית</h3>
+                        <p>
+                            הצלחה בלימודי הכימיה אינה דורשת שינון טכני, אלא הבנה עקבית של מושגי היסוד ופיתוח מיומנות פתרון שיטתית. לקראת מבחן, מתכונת, בגרות (5 יח"ל) או קורס אקדמי – מוזמנים לתאם שיעור ממוקד.
+                        </p>
+                        <div class="article-cta-buttons">
+                            <a href="https://wa.me/972502719917?text=%D7%A9%D7%9C%D7%95%D7%9D%20%D7%A2%D7%99%D7%93%D7%99%D7%AA%2C%20%D7%A7%D7%A8%D7%90%D7%AA%D7%99%20%D7%90%D7%AA%20%D7%94%D7%9E%D7%93%D7%A8%D7%99%D7%9A%20%D7%9C%D7%A1%D7%98%D7%95%D7%9B%D7%99%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%94%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%AA%D7%90%D7%9D%20%D7%A9%D7%99%D7%A2%D7%95%D7%A8" target="_blank" class="btn-wa-article">
+                                💬 שלחו הודעת WhatsApp לתיאום
+                            </a>
+                            <a href="tel:050-271-9917" class="btn-call-article">
+                                📞 050-271-9917
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background:var(--primary); color:#94A3B8; padding:2.5rem 0; text-align:center; font-size:0.95rem;">
+        <div class="container">
+            <p style="margin-bottom:0.5rem; color:#FFFFFF; font-weight:700;">עידית – מורה פרטית לכימיה ברמת גן ואונליין</p>
+            <p>רמת גן | טלפון: <a href="tel:050-271-9917" style="color:var(--accent); text-decoration:none;">050-271-9917</a></p>
+            <p style="margin-top:1rem; font-size:0.85rem;">&copy; 2026 עידית. כל הזכויות שמורות. | <a href="../accessibility.html" style="color:#CBD5E1;">הצהרת נגישות</a> | <a href="../privacy.html" style="color:#CBD5E1;">מדיניות פרטיות</a></p>
+        </div>
+    </footer>
+
+</body>
+</html>
